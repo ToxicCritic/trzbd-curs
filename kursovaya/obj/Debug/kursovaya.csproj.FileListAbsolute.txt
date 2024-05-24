@@ -1,0 +1,9 @@
+H:\ТРЗБД\kursovaya\kursovaya\bin\Debug\kursovaya.exe.config
+H:\ТРЗБД\kursovaya\kursovaya\bin\Debug\kursovaya.exe
+H:\ТРЗБД\kursovaya\kursovaya\bin\Debug\kursovaya.pdb
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.csprojAssemblyReference.cache
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.Properties.Resources.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.csproj.GenerateResource.cache
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.csproj.CoreCompileInputs.cache
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.exe
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.pdb
