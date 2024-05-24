@@ -40,7 +40,7 @@ namespace kursovaya
         private bool IsValidUser(string username, string password, out bool isAdmin)
         {
             // Пример проверки (лучше использовать хеширование паролей и безопасное хранение)
-            if (username == "admin" && password == "adminpassword")
+            if (username == "admin" && password == "1")
             {
                 isAdmin = true;
                 return true;
