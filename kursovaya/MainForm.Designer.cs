@@ -35,7 +35,7 @@ namespace kursovaya
             this.FormClosing += MainForm_FormClosing;
 
             // Настройка подключения к базе данных
-            sqlConnection = new SqlConnection(Program.connectionString);
+            sqlConnection = new SqlConnection(Program.connectionStringColledge);
             sqlConnection.Open();
         }
 
