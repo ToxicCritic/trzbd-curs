@@ -18,14 +18,7 @@ namespace kursovaya
         public MainForm()
         {
             InitializeComponent();
-            InitializeSqlConnection();
             InitializeTabs();
-        }
-
-        private void InitializeSqlConnection()
-        {
-            sqlConnection = new SqlConnection(@"Server=ADCLG1;Database=Лифляндский_СпортШколаОлимпРезерва;Integrated Security=true;");
-            sqlConnection.Open();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

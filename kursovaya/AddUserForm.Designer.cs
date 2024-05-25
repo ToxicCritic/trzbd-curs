@@ -1,4 +1,6 @@
-﻿namespace kursovaya
+﻿using System.Windows.Forms;
+
+namespace kursovaya
 {
     partial class AddUserForm
     {
@@ -28,10 +30,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "AddUserForm";
+
+            this.loginTextBox = new TextBox { Text = "Логин", Dock = DockStyle.Top };
+            this.passwordTextBox = new TextBox { Text = "Пароль", Dock = DockStyle.Top, UseSystemPasswordChar = false };
+            this.statusComboBox = new ComboBox { Dock = DockStyle.Top };
+            this.statusComboBox.Items.AddRange(new string[] { "admin", "user" });
+            this.okButton = new Button { Text = "OK", DialogResult = DialogResult.OK, Dock = DockStyle.Bottom };
+            this.cancelButton = new Button { Text = "Отмена", DialogResult = DialogResult.Cancel, Dock = DockStyle.Bottom };
+
+            this.Controls.Add(loginTextBox);
+            this.Controls.Add(passwordTextBox);
+            this.Controls.Add(statusComboBox);
+            this.Controls.Add(okButton);
+            this.Controls.Add(cancelButton);
+
+            this.Text = "Добавить пользователя";
         }
 
         #endregion
