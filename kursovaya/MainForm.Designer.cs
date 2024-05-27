@@ -40,7 +40,7 @@ namespace kursovaya
             // 
             this.welcomeLabel.AutoSize = true;
             this.welcomeLabel.Font = new Font("Arial", 12F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
-            this.welcomeLabel.Location = new Point(10, this.ClientSize.Height - 30);
+            this.welcomeLabel.Location = new Point(10, 570);
             this.welcomeLabel.Name = "welcomeLabel";
             this.welcomeLabel.Size = new Size(250, 19);
             this.welcomeLabel.TabIndex = 0;

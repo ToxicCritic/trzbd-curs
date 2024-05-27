@@ -127,13 +127,21 @@ namespace kursovaya
             return true;
         }
 
+        private Label fioLabel;
         private TextBox fioTextBox;
+        private Label departmentLabel;
         private ComboBox departmentComboBox;
+        private Label groupLabel;
         private ComboBox groupComboBox;
+        private Label trainerLabel;
         private ComboBox trainerComboBox;
+        private Label rankingLabel;
         private TextBox rankingTextBox;
+        private Label heightsLabel;
         private NumericUpDown heightsNumericUpDown;
+        private Label weightsLabel;
         private NumericUpDown weightsNumericUpDown;
+        private Label educationBeginLabel;
         private DateTimePicker educationBeginPicker;
         private Button saveButton;
         private Button cancelButton;
