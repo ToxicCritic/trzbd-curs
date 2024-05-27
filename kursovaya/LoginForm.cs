@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SqlClient;
 
 namespace kursovaya
 {
@@ -19,41 +13,34 @@ namespace kursovaya
             InitializeComponent();
         }
 
-        private void BtnLogin_Click(object sender, EventArgs e)
-        {
-            string username = this.Controls["txtUsername"].Text;
-            string password = this.Controls["txtPassword"].Text;
 
-            if (IsValidUser(username, password, out bool isAdmin))
+
+        private void loginButton_Click(object sender, EventArgs e)
+        {
+            string login = loginTextBox.Text;
+            string password = passwordTextBox.Text;
+
+            AuthenticationService authService = new AuthenticationService(Program.connectionStringColledge);
+
+            if (authService.AuthenticateUser(login, password, out string status))
             {
-                IsAdmin = isAdmin;
-                this.Hide();
-                MainForm mainForm = new MainForm();
+                IsAdmin = (status == "admin");
+                MessageBox.Show("Вход выполнен успешно!");
+                MainForm mainForm = new MainForm(status, login);
                 mainForm.Show();
+                this.Hide();
             }
             else
             {
-                MessageBox.Show("Invalid username or password.");
+                MessageBox.Show("Ошибка входа. Проверьте логин и пароль.");
             }
         }
 
-        private bool IsValidUser(string username, string password, out bool isAdmin)
-        {
-            // Пример проверки (лучше использовать хеширование паролей и безопасное хранение)
-            if (username == "admin" && password == "1")
-            {
-                isAdmin = true;
-                return true;
-            }
-            else if (username == "user" && password == "userpassword")
-            {
-                isAdmin = false;
-                return true;
-            }
-
-            isAdmin = false;
-            return false;
-        }
+        private Label loginLabel;
+        private Label titleLabel;
+        private Label passwordLabel;
+        private TextBox loginTextBox;
+        private TextBox passwordTextBox;
+        private Button loginButton;
     }
-
 }

@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace kursovaya
@@ -10,15 +10,26 @@ namespace kursovaya
     public partial class MainForm : Form
     {
         private SqlConnection sqlConnection;
-        private SqlDataAdapter usersDataAdapter;
-        private DataTable usersDataTable;
-        private BindingSource usersBindingSource;
         private DataGridView usersDataGridView;
+        private string username;
+        private string userStatus;
+        private Label welcomeLabel;
+        private readonly string connectionString = @"Server=ADCLG1;Database=Лифляндский_СпортШколаОлимпРезерва;Integrated Security=true;";
 
-        public MainForm()
+        public MainForm(string status, string username)
         {
+            this.userStatus = status;
+            this.username = username;
             InitializeComponent();
-            InitializeTabs();
+            InitializeSqlConnection();
+            InitializeTabs(status);
+            this.welcomeLabel.Text = $"Здравствуй, {username} ({userStatus})";
+        }
+
+        private void InitializeSqlConnection()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlConnection.Open();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -29,24 +40,27 @@ namespace kursovaya
             }
         }
 
-        private void InitializeTabs()
+       
+
+        private void InitializeTabs(string userStatus)
         {
             TabControl tabControl = new TabControl();
             tabControl.Dock = DockStyle.Fill;
+            tabControl.Location = new Point(0, 0); // Устанавливаем нижнее расположение, чтобы не перекрывать приветственное сообщение
 
             // Создаем вкладки для каждой таблицы
-            tabControl.TabPages.Add(CreateTabPage("Athletes", "SELECT * FROM dbo.Athletes"));
+            tabControl.TabPages.Add(CreateTabPage("Athletes", "SELECT * FROM dbo.Athletes", AddEditAthlete));
             tabControl.TabPages.Add(CreateTabPage("Competitions", "SELECT * FROM dbo.Competitions"));
-            tabControl.TabPages.Add(CreateTabPage("Competition Participating", "SELECT * FROM dbo.Competition_participating"));
+            tabControl.TabPages.Add(CreateTabPage("Competition Participating", "SELECT * FROM dbo.Competition_participating", null, "AthleteID", "Athletes", "id"));
             tabControl.TabPages.Add(CreateTabPage("Departments", "SELECT * FROM dbo.Departments"));
             tabControl.TabPages.Add(CreateTabPage("Groups", "SELECT * FROM dbo.Groups"));
             tabControl.TabPages.Add(CreateTabPage("Standards", "SELECT * FROM dbo.Standards"));
-            tabControl.TabPages.Add(CreateTabPage("Standards Passing", "SELECT * FROM dbo.Standards_passing"));
+            tabControl.TabPages.Add(CreateTabPage("Standards Passing", "SELECT * FROM dbo.Standards_passing", null, "AthleteID", "Athletes", "id"));
             tabControl.TabPages.Add(CreateTabPage("Trainers", "SELECT * FROM dbo.Trainers"));
-            tabControl.TabPages.Add(CreateTabPage("Trainings", "SELECT * FROM dbo.Trainings"));
+            tabControl.TabPages.Add(CreateTabPage("Trainings", "SELECT * FROM dbo.Trainings", null, "TrainerID", "Trainers", "id"));
             tabControl.TabPages.Add(CreateTabPage("Trophies", "SELECT * FROM dbo.Trophies"));
 
-            if (LoginForm.IsAdmin)
+            if (userStatus == "admin")
             {
                 tabControl.TabPages.Add(CreateUsersTabPage());
             }
@@ -54,13 +68,23 @@ namespace kursovaya
             this.Controls.Add(tabControl);
         }
 
-        private TabPage CreateTabPage(string tableName, string selectQuery)
+        private TabPage CreateTabPage(string tableName, string selectQuery, Action<DataTable> addHandler = null, string foreignKeyField = null, string referenceTable = null, string referenceField = null)
         {
             TabPage tabPage = new TabPage(tableName);
 
+            ToolStrip toolStrip = new ToolStrip();
+            ToolStripButton addButton = new ToolStripButton("Добавить");
+            ToolStripButton deleteButton = new ToolStripButton("Удалить");
+            ToolStripButton updateButton = new ToolStripButton("Изменить");
+
+            toolStrip.Items.Add(addButton);
+            toolStrip.Items.Add(deleteButton);
+            toolStrip.Items.Add(updateButton);
+
             DataGridView dataGridView = new DataGridView
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
+                Height = 300,
                 ReadOnly = !LoginForm.IsAdmin,
                 AllowUserToAddRows = LoginForm.IsAdmin,
                 AllowUserToDeleteRows = LoginForm.IsAdmin
@@ -77,6 +101,19 @@ namespace kursovaya
             };
             dataGridView.DataSource = bindingSource;
 
+            if (foreignKeyField != null && referenceTable != null && referenceField != null)
+            {
+                DataGridViewComboBoxColumn comboColumn = new DataGridViewComboBoxColumn
+                {
+                    HeaderText = foreignKeyField,
+                    DataPropertyName = foreignKeyField,
+                    DataSource = GetReferenceData(referenceTable, referenceField),
+                    ValueMember = referenceField,
+                    DisplayMember = referenceField
+                };
+                dataGridView.Columns.Add(comboColumn);
+            }
+
             if (LoginForm.IsAdmin)
             {
                 SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(sqlDataAdapter);
@@ -89,73 +126,131 @@ namespace kursovaya
                         sqlDataAdapter.Update(dataTable);
                     }
                 };
+
+                if (addHandler != null)
+                {
+                    addButton.Click += (sender, e) => addHandler(dataTable);
+                }
+                else
+                {
+                    addButton.Click += (sender, e) => AddRow(dataTable);
+                }
+
+                deleteButton.Click += (sender, e) => DeleteRow(dataGridView, dataTable, sqlDataAdapter);
+                updateButton.Click += (sender, e) => UpdateRow(dataGridView, sqlDataAdapter);
             }
 
+            tabPage.Controls.Add(toolStrip);
             tabPage.Controls.Add(dataGridView);
             return tabPage;
+        }
+
+        private DataTable GetReferenceData(string tableName, string fieldName)
+        {
+            DataTable referenceData = new DataTable();
+            string query = $"SELECT {fieldName} FROM dbo.{tableName}";
+            using (SqlCommand command = new SqlCommand(query, sqlConnection))
+            {
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                adapter.Fill(referenceData);
+            }
+            return referenceData;
+        }
+
+        private void AddRow(DataTable dataTable)
+        {
+            DataRow newRow = dataTable.NewRow();
+            // Предполагается, что добавление строки будет обрабатываться через DataGridView
+            dataTable.Rows.Add(newRow);
+        }
+
+        private void DeleteRow(DataGridView dataGridView, DataTable dataTable, SqlDataAdapter sqlDataAdapter)
+        {
+            foreach (DataGridViewRow row in dataGridView.SelectedRows)
+            {
+                if (!row.IsNewRow)
+                {
+                    dataGridView.Rows.Remove(row);
+                }
+            }
+            sqlDataAdapter.Update(dataTable);
+        }
+
+        private void UpdateRow(DataGridView dataGridView, SqlDataAdapter sqlDataAdapter)
+        {
+            // Здесь предполагается, что изменения уже были внесены в DataGridView и нужно просто обновить данные
+            sqlDataAdapter.Update((DataTable)dataGridView.DataSource);
+        }
+
+        private void AddEditAthlete(DataTable dataTable)
+        {
+            using (AddEditAthleteForm form = new AddEditAthleteForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    DataRow newRow = dataTable.NewRow();
+                    newRow["FIO"] = form.FIO;
+                    newRow["Department"] = form.DepartmentID;
+                    newRow["GroupID"] = form.GroupID;
+                    newRow["TrainerID"] = form.TrainerID;
+                    newRow["Ranking"] = form.Ranking;
+                    newRow["Heights"] = form.Heights;
+                    newRow["Weights"] = form.Weights;
+                    newRow["Education_begin"] = form.EducationBegin;
+                    dataTable.Rows.Add(newRow);
+                }
+            }
         }
 
         private TabPage CreateUsersTabPage()
         {
             TabPage tabPage = new TabPage("Пользователи");
 
-            DataGridView dataGridView = new DataGridView
+            ToolStrip toolStrip = new ToolStrip();
+            ToolStripButton addButton = new ToolStripButton("Добавить");
+            ToolStripButton deleteButton = new ToolStripButton("Удалить");
+            ToolStripButton updateButton = new ToolStripButton("Изменить");
+
+            toolStrip.Items.Add(addButton);
+            toolStrip.Items.Add(deleteButton);
+            toolStrip.Items.Add(updateButton);
+
+            usersDataGridView = new DataGridView
             {
                 Dock = DockStyle.Top,
-                Height = 200
+                Height = 300,
+                ReadOnly = false,
+                AllowUserToAddRows = true,
+                AllowUserToDeleteRows = true
             };
 
-            Button addUserButton = new Button
-            {
-                Text = "Добавить пользователя",
-                Dock = DockStyle.Top
-            };
+            addButton.Click += AddUserButton_Click;
+            deleteButton.Click += DeleteUserButton_Click;
+            updateButton.Click += UpdateUserButton_Click;
 
-            Button deleteUserButton = new Button
-            {
-                Text = "Удалить пользователя",
-                Dock = DockStyle.Top
-            };
+            tabPage.Controls.Add(toolStrip);
+            tabPage.Controls.Add(usersDataGridView);
 
-            Button updateUserButton = new Button
-            {
-                Text = "Изменить статус пользователя",
-                Dock = DockStyle.Top
-            };
-
-            // Привязка событий кнопок к методам
-            addUserButton.Click += AddUserButton_Click;
-            deleteUserButton.Click += DeleteUserButton_Click;
-            updateUserButton.Click += UpdateUserButton_Click;
-
-            tabPage.Controls.Add(dataGridView);
-            tabPage.Controls.Add(addUserButton);
-            tabPage.Controls.Add(deleteUserButton);
-            tabPage.Controls.Add(updateUserButton);
-
-            LoadUsers(dataGridView);
+            LoadUsers(usersDataGridView);
 
             return tabPage;
         }
 
         private void LoadUsers(DataGridView dataGridView)
         {
-            string query = "SELECT * FROM Users";
-            usersDataAdapter = new SqlDataAdapter(query, sqlConnection);
-            SqlCommandBuilder commandBuilder = new SqlCommandBuilder(usersDataAdapter);
-            usersDataTable = new DataTable();
-            usersDataAdapter.Fill(usersDataTable);
-
-            usersBindingSource = new BindingSource
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                DataSource = usersDataTable
-            };
-            dataGridView.DataSource = usersBindingSource;
+                connection.Open();
+                string query = "SELECT * FROM Users";
+                SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView.DataSource = dataTable;
+            }
         }
 
         private void AddUserButton_Click(object sender, EventArgs e)
         {
-            // Открываем форму для ввода данных нового пользователя
             using (AddUserForm addUserForm = new AddUserForm())
             {
                 if (addUserForm.ShowDialog() == DialogResult.OK)
@@ -164,18 +259,9 @@ namespace kursovaya
                     string password = addUserForm.Password;
                     string status = addUserForm.Status;
 
-                    string passwordHash = HashPassword(password);
+                    AuthenticationService authService = new AuthenticationService(connectionString);
+                    authService.AddUser(login, password, status);
 
-                    string query = "INSERT INTO Users (Login, PasswordHash, Status) VALUES (@Login, @PasswordHash, @Status)";
-                    using (SqlCommand command = new SqlCommand(query, sqlConnection))
-                    {
-                        command.Parameters.AddWithValue("@Login", login);
-                        command.Parameters.AddWithValue("@PasswordHash", passwordHash);
-                        command.Parameters.AddWithValue("@Status", status);
-                        command.ExecuteNonQuery();
-                    }
-
-                    // Обновляем таблицу пользователей
                     LoadUsers(usersDataGridView);
                 }
             }
@@ -186,15 +272,17 @@ namespace kursovaya
             if (usersDataGridView.SelectedRows.Count > 0)
             {
                 int userId = (int)usersDataGridView.SelectedRows[0].Cells["ID"].Value;
-
-                string query = "DELETE FROM Users WHERE ID = @UserID";
-                using (SqlCommand command = new SqlCommand(query, sqlConnection))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    command.Parameters.AddWithValue("@UserID", userId);
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    string query = "DELETE FROM Users WHERE ID = @UserID";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserID", userId);
+                        command.ExecuteNonQuery();
+                    }
                 }
 
-                // Обновляем таблицу пользователей
                 LoadUsers(usersDataGridView);
             }
             else
@@ -210,34 +298,23 @@ namespace kursovaya
                 int userId = (int)usersDataGridView.SelectedRows[0].Cells["ID"].Value;
                 string newStatus = (string)usersDataGridView.SelectedRows[0].Cells["Status"].Value == "admin" ? "user" : "admin";
 
-                string query = "UPDATE Users SET Status = @Status WHERE ID = @UserID";
-                using (SqlCommand command = new SqlCommand(query, sqlConnection))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    command.Parameters.AddWithValue("@Status", newStatus);
-                    command.Parameters.AddWithValue("@UserID", userId);
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    string query = "UPDATE Users SET Status = @Status WHERE ID = @UserID";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Status", newStatus);
+                        command.Parameters.AddWithValue("@UserID", userId);
+                        command.ExecuteNonQuery();
+                    }
                 }
 
-                // Обновляем таблицу пользователей
                 LoadUsers(usersDataGridView);
             }
             else
             {
                 MessageBox.Show("Пожалуйста, выберите пользователя для обновления.");
-            }
-        }
-
-        private string HashPassword(string password)
-        {
-            using (System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
             }
         }
     }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace kursovaya
 {
@@ -19,7 +16,7 @@ namespace kursovaya
         public bool AuthenticateUser(string login, string password, out string status)
         {
             status = null;
-            string passwordHash = PasswordHelper.HashPassword(password);
+            string passwordHash = HashPassword(password);
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -45,7 +42,7 @@ namespace kursovaya
 
         public void AddUser(string login, string password, string status)
         {
-            string passwordHash = PasswordHelper.HashPassword(password);
+            string passwordHash = HashPassword(password);
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -60,6 +57,19 @@ namespace kursovaya
                 }
             }
         }
-    }
 
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+    }
 }

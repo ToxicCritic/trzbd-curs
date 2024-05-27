@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace kursovaya
 {
@@ -8,12 +10,6 @@ namespace kursovaya
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        private Label lblTitle = new Label();
-        private Label lblUsername = new Label();
-        private Label lblPassword = new Label();
-        private TextBox txtUsername = new TextBox();
-        private TextBox txtPassword = new TextBox();
-        private Button btnLogin = new Button();
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -35,56 +31,81 @@ namespace kursovaya
         /// </summary>
         private void InitializeComponent()
         {
-            // Настройки формы
-            this.Text = "Login";
-            this.Size = new System.Drawing.Size(400, 300);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
+            this.loginLabel = new System.Windows.Forms.Label();
+            this.passwordLabel = new System.Windows.Forms.Label();
+            this.loginTextBox = new System.Windows.Forms.TextBox();
+            this.passwordTextBox = new System.Windows.Forms.TextBox();
+            this.loginButton = new System.Windows.Forms.Button();
+            this.titleLabel = new System.Windows.Forms.Label();
+            this.SuspendLayout();
+            // 
+            // loginLabel
+            // 
+            this.loginLabel.AutoSize = true;
+            this.loginLabel.Location = new System.Drawing.Point(12, 46);
+            this.loginLabel.Name = "loginLabel";
+            this.loginLabel.Size = new System.Drawing.Size(38, 13);
+            this.loginLabel.TabIndex = 0;
+            this.loginLabel.Text = "Логин";
+            // 
+            // passwordLabel
+            // 
+            this.passwordLabel.AutoSize = true;
+            this.passwordLabel.Location = new System.Drawing.Point(12, 72);
+            this.passwordLabel.Name = "passwordLabel";
+            this.passwordLabel.Size = new System.Drawing.Size(45, 13);
+            this.passwordLabel.TabIndex = 1;
+            this.passwordLabel.Text = "Пароль";
+            // 
+            // loginTextBox
+            // 
+            this.loginTextBox.Location = new System.Drawing.Point(70, 43);
+            this.loginTextBox.Name = "loginTextBox";
+            this.loginTextBox.Size = new System.Drawing.Size(202, 20);
+            this.loginTextBox.TabIndex = 2;
+            // 
+            // passwordTextBox
+            // 
+            this.passwordTextBox.Location = new System.Drawing.Point(70, 69);
+            this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.Size = new System.Drawing.Size(202, 20);
+            this.passwordTextBox.TabIndex = 3;
+            this.passwordTextBox.UseSystemPasswordChar = true;
+            // 
+            // loginButton
+            // 
+            this.loginButton.Location = new System.Drawing.Point(197, 95);
+            this.loginButton.Name = "loginButton";
+            this.loginButton.Size = new System.Drawing.Size(75, 23);
+            this.loginButton.TabIndex = 4;
+            this.loginButton.Text = "Войти";
+            this.loginButton.UseVisualStyleBackColor = true;
+            this.loginButton.Click += new System.EventHandler(this.loginButton_Click);
+            // 
+            // titleLabel
+            // 
+            this.titleLabel.AutoSize = true;
+            this.titleLabel.Font = new System.Drawing.Font("Arial", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.titleLabel.Location = new System.Drawing.Point(50, 10);
+            this.titleLabel.Name = "titleLabel";
+            this.titleLabel.Size = new System.Drawing.Size(201, 26);
+            this.titleLabel.TabIndex = 5;
+            this.titleLabel.Text = "Вход в БД СШОР";
+            // 
+            // LoginForm
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 128);
+            this.Controls.Add(this.loginButton);
+            this.Controls.Add(this.passwordTextBox);
+            this.Controls.Add(this.loginTextBox);
+            this.Controls.Add(this.passwordLabel);
+            this.Controls.Add(this.loginLabel);
+            this.Controls.Add(this.titleLabel);
+            this.Name = "LoginForm";
+            this.Text = "Вход";
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
-            // Заголовок
-            Label lblTitle = new Label();
-            lblTitle.Text = "Login to Sports School";
-            lblTitle.Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold);
-            lblTitle.AutoSize = true;
-            lblTitle.Location = new System.Drawing.Point(100, 30);
-            this.Controls.Add(lblTitle);
-
-            // Метка для имени пользователя
-            Label lblUsername = new Label();
-            lblUsername.Text = "Username:";
-            lblUsername.Location = new System.Drawing.Point(50, 80);
-            lblUsername.AutoSize = true;
-            this.Controls.Add(lblUsername);
-
-            // Текстовое поле для имени пользователя
-            TextBox txtUsername = new TextBox();
-            txtUsername.Name = "txtUsername";
-            txtUsername.Location = new System.Drawing.Point(150, 80);
-            txtUsername.Width = 200;
-            this.Controls.Add(txtUsername);
-
-            // Метка для пароля
-            Label lblPassword = new Label();
-            lblPassword.Text = "Password:";
-            lblPassword.Location = new System.Drawing.Point(50, 120);
-            lblPassword.AutoSize = true;
-            this.Controls.Add(lblPassword);
-
-            // Текстовое поле для пароля
-            TextBox txtPassword = new TextBox();
-            txtPassword.Name = "txtPassword";
-            txtPassword.Location = new System.Drawing.Point(150, 120);
-            txtPassword.Width = 200;
-            txtPassword.PasswordChar = '*';
-            this.Controls.Add(txtPassword);
-
-            // Кнопка для входа
-            Button btnLogin = new Button();
-            btnLogin.Text = "Login";
-            btnLogin.Location = new System.Drawing.Point(150, 160);
-            btnLogin.Width = 100;
-            btnLogin.Click += BtnLogin_Click;
-            this.Controls.Add(btnLogin);
         }
 
         #endregion
