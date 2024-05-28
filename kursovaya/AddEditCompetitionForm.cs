@@ -27,8 +27,6 @@ namespace kursovaya
             competitionDatePicker.Value = CompetitionDate;
         }
 
-        
-
         private void saveButton_Click(object sender, EventArgs e)
         {
             CompetitionName = competitionNameTextBox.Text;
