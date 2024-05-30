@@ -43,7 +43,7 @@
             this.competitionLabel.AutoSize = true;
             this.competitionLabel.Location = new System.Drawing.Point(12, 15);
             this.competitionLabel.Name = "competitionLabel";
-            this.competitionLabel.Size = new System.Drawing.Size(98, 13);
+            this.competitionLabel.Size = new System.Drawing.Size(80, 13);
             this.competitionLabel.TabIndex = 0;
             this.competitionLabel.Text = "Соревнование";
             // 
@@ -61,7 +61,7 @@
             this.athleteLabel.AutoSize = true;
             this.athleteLabel.Location = new System.Drawing.Point(12, 42);
             this.athleteLabel.Name = "athleteLabel";
-            this.athleteLabel.Size = new System.Drawing.Size(66, 13);
+            this.athleteLabel.Size = new System.Drawing.Size(36, 13);
             this.athleteLabel.TabIndex = 2;
             this.athleteLabel.Text = "Атлет";
             // 
@@ -79,7 +79,7 @@
             this.categoryLabel.AutoSize = true;
             this.categoryLabel.Location = new System.Drawing.Point(12, 69);
             this.categoryLabel.Name = "categoryLabel";
-            this.categoryLabel.Size = new System.Drawing.Size(70, 13);
+            this.categoryLabel.Size = new System.Drawing.Size(60, 13);
             this.categoryLabel.TabIndex = 4;
             this.categoryLabel.Text = "Категория";
             // 
@@ -92,7 +92,7 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(15, 100);
+            this.saveButton.Location = new System.Drawing.Point(241, 100);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 6;
@@ -102,7 +102,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(241, 100);
+            this.cancelButton.Location = new System.Drawing.Point(15, 100);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 7;
@@ -125,6 +125,7 @@
             this.Text = "Добавить/Редактировать участие в соревновании";
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion

@@ -18,3 +18,7 @@ C:\Users\annag\trzbd-curs\trzbd-curs\kursovaya\obj\Debug\kursovaya.exe
 C:\Users\annag\trzbd-curs\trzbd-curs\kursovaya\obj\Debug\kursovaya.pdb
 H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.LoginForm.resources
 H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.MainForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditCompetitionForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditAthleteForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditCompetitionParticipatingForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditDepartmentForm.resources

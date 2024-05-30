@@ -69,5 +69,7 @@ namespace kursovaya
         private DateTimePicker competitionDatePicker;
         private Button saveButton;
         private Button cancelButton;
+
+
     }
 }

@@ -11,8 +11,6 @@ namespace kursovaya
     {
         private SqlConnection sqlConnection;
         private DataGridView usersDataGridView;
-        private SqlDataAdapter sqlDataAdapter;
-        private DataTable dataTable;
         private string username;
         private string userStatus;
         private Label welcomeLabel;
@@ -47,19 +45,33 @@ namespace kursovaya
         {
             TabControl tabControl = new TabControl();
             tabControl.Dock = DockStyle.Fill;
-            tabControl.Location = new Point(0, 0); // Устанавливаем нижнее расположение, чтобы не перекрывать приветственное сообщение
+            tabControl.Location = new Point(0, 0);
 
-            // Создаем вкладки для каждой таблицы
-            tabControl.TabPages.Add(CreateTabPage("Athletes", "SELECT * FROM dbo.Athletes", AddEditAthlete, "GroupID", "Groups", "id", 4, "TrainerID", "Trainers", "id", 6));
-            tabControl.TabPages.Add(CreateTabPage("Competitions", "SELECT * FROM dbo.Competitions", AddEditCompetition));
-            tabControl.TabPages.Add(CreateTabPage("Competition Participating", "SELECT * FROM dbo.Competition_participating", AddEditCompetitionParticipating, "AthleteID", "Athletes", "id", 0, "CompetitionID", "Competitions", "id", 1));
-            tabControl.TabPages.Add(CreateTabPage("Departments", "SELECT * FROM dbo.Departments"));
-            tabControl.TabPages.Add(CreateTabPage("Groups", "SELECT * FROM dbo.Groups", null, "TrainerID", "Trainers", "id", 1, "Department", "Departments", "DepartmentName"));
-            tabControl.TabPages.Add(CreateTabPage("Standards", "SELECT * FROM dbo.Standards"));
-            tabControl.TabPages.Add(CreateTabPage("Standards Passing", "SELECT * FROM dbo.Standards_passing", null, "AthleteID", "Athletes", "id", 1, "StandardID", "Standards", "id"));
-            tabControl.TabPages.Add(CreateTabPage("Trainers", "SELECT * FROM dbo.Trainers", null, "Department", "Departments", "DepartmentName"));
-            tabControl.TabPages.Add(CreateTabPage("Trainings", "SELECT * FROM dbo.Trainings", null, "TrainerID", "Trainers", "id", 1, "Department", "Departments", "DepartmentName"));
-            tabControl.TabPages.Add(CreateTabPage("Trophies", "SELECT * FROM dbo.Trophies", null, "CompetitionID", "Competitions", "id", 1, "AthleteID", "Athletes", "id"));
+            // Используем таблицы для загрузки данных с нужными заголовками
+            tabControl.TabPages.Add(CreateTabPage("Athletes", "SELECT * FROM Athletes", AddEditAthlete,
+                                                  "Department", "Departments", "DepartmentName", "DepartmentName", 2,
+                                                  "GroupID", "Groups", "GroupId", "GroupId", 3,
+                                                  "TrainerID", "Trainers", "id", "TrainerFIO", 4));
+            tabControl.TabPages.Add(CreateTabPage("Competitions", "SELECT * FROM Competitions", AddEditCompetition));
+            tabControl.TabPages.Add(CreateTabPage("Competition Participating", "SELECT * FROM Competition_participating", AddEditCompetitionParticipating,
+                                                  "CompetitionID", "Competitions", "id", "CompetitionName", 1,
+                                                  "AthleteID", "Athletes", "id", "AthleteFIO", 2));
+            tabControl.TabPages.Add(CreateTabPage("Departments", "SELECT * FROM Departments", AddEditDepartment));
+            tabControl.TabPages.Add(CreateTabPage("Groups", "SELECT * FROM Groups", null,
+                                                  "TrainerID", "Trainers", "id", "TrainerFIO", 1,
+                                                  "Department", "Departments", "DepartmentName", "DepartmentName", 2));
+            tabControl.TabPages.Add(CreateTabPage("Standards", "SELECT * FROM Standards"));
+            tabControl.TabPages.Add(CreateTabPage("Standards Passing", "SELECT * FROM Standards_passing", null,
+                                                  "AthleteID", "Athletes", "id", "AthleteFIO", 1,
+                                                  "StandardID", "Standards", "id", "Exercise", 2));
+            tabControl.TabPages.Add(CreateTabPage("Trainers", "SELECT * FROM Trainers", null,
+                                                  "Department", "Departments", "DepartmentName", "DepartmentName", 2));
+            tabControl.TabPages.Add(CreateTabPage("Trainings", "SELECT * FROM Trainings", null,
+                                                  "TrainerID", "Trainers", "id", "TrainerFIO", 1, 
+                                                  "Department", "Departments", "DepartmentName", "DepartmentName", 2));
+            tabControl.TabPages.Add(CreateTabPage("Trophies", "SELECT * FROM Trophies", null,
+                                                  "CompetitionID", "Competitions", "id", "CompetitionName", 1,
+                                                  "AthleteID", "Athletes", "id", "AthleteFIO"));
 
             if (userStatus == "admin")
             {
@@ -69,18 +81,20 @@ namespace kursovaya
             this.Controls.Add(tabControl);
         }
 
-        private TabPage CreateTabPage(string tableName, string selectQuery, Action<DataTable> addHandler = null, string foreignKeyField1 = null, string referenceTable1 = null, string referenceField1 = null, int? position1 = null, string foreignKeyField2 = null, string referenceTable2 = null, string referenceField2 = null, int? position2 = null)
+
+        private TabPage CreateTabPage(string tableName, string selectQuery, Action<DataTable> addHandler = null,
+                                      string foreignKeyField1 = null, string referenceTable1 = null, string referenceField1 = null, string displayMember1 = null, int? position1 = null,
+                                      string foreignKeyField2 = null, string referenceTable2 = null, string referenceField2 = null, string displayMember2 = null, int? position2 = null,
+                                      string foreignKeyField3 = null, string referenceTable3 = null, string referenceField3 = null, string displayMember3 = null, int? position3 = null)
         {
             TabPage tabPage = new TabPage(tableName);
 
             ToolStrip toolStrip = new ToolStrip();
             ToolStripButton addButton = new ToolStripButton("Добавить");
             ToolStripButton deleteButton = new ToolStripButton("Удалить");
-            ToolStripButton updateButton = new ToolStripButton("Изменить");
 
             toolStrip.Items.Add(addButton);
             toolStrip.Items.Add(deleteButton);
-            toolStrip.Items.Add(updateButton);
 
             DataGridView dataGridView = new DataGridView
             {
@@ -88,10 +102,12 @@ namespace kursovaya
                 Height = 300,
                 ReadOnly = !LoginForm.IsAdmin,
                 AllowUserToAddRows = LoginForm.IsAdmin,
-                AllowUserToDeleteRows = LoginForm.IsAdmin
+                AllowUserToDeleteRows = LoginForm.IsAdmin,
+                AutoGenerateColumns = false
             };
 
             SqlDataAdapter localAdapter = new SqlDataAdapter(selectQuery, sqlConnection);
+            SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(localAdapter);
             DataTable localTable = new DataTable();
             localAdapter.Fill(localTable);
 
@@ -101,10 +117,28 @@ namespace kursovaya
             };
             dataGridView.DataSource = bindingSource;
 
+            // Обработчик события RowUpdated для получения новых идентификаторов
+            localAdapter.RowUpdated += (sender, args) =>
+            {
+                if (args.StatementType == StatementType.Insert)
+                {
+                    using (SqlCommand cmd = new SqlCommand("SELECT SCOPE_IDENTITY()", sqlConnection))
+                    {
+                        object newId = cmd.ExecuteScalar();
+                        if (newId != DBNull.Value)
+                        {
+                            args.Row["id"] = Convert.ToInt32(newId);
+                        }
+                    }
+                }
+            };
+
             // Добавление всех столбцов из DataTable в DataGridView, за исключением столбцов с выпадающими списками
             foreach (DataColumn column in localTable.Columns)
             {
-                if ((foreignKeyField1 != null && column.ColumnName == foreignKeyField1) || (foreignKeyField2 != null && column.ColumnName == foreignKeyField2))
+                if ((foreignKeyField1 != null && column.ColumnName == foreignKeyField1) ||
+                    (foreignKeyField2 != null && column.ColumnName == foreignKeyField2) ||
+                    (foreignKeyField3 != null && column.ColumnName == foreignKeyField3))
                 {
                     continue; // Пропускаем столбцы, которые будут заменены на выпадающие списки
                 }
@@ -117,15 +151,17 @@ namespace kursovaya
             }
 
             // Добавление выпадающего списка для первого внешнего ключа
-            if (foreignKeyField1 != null && referenceTable1 != null && referenceField1 != null)
+            if (foreignKeyField1 != null && referenceTable1 != null && referenceField1 != null && displayMember1 != null)
             {
+                DataTable referenceData1 = GetReferenceData(referenceTable1, referenceField1, displayMember1);
                 DataGridViewComboBoxColumn comboColumn1 = new DataGridViewComboBoxColumn
                 {
-                    HeaderText = foreignKeyField1,
                     DataPropertyName = foreignKeyField1,
-                    DataSource = GetReferenceData(referenceTable1, referenceField1),
+                    HeaderText = displayMember1,
+                    DataSource = referenceData1,
                     ValueMember = referenceField1,
-                    DisplayMember = referenceField1
+                    DisplayMember = displayMember1,
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
                 };
                 if (position1.HasValue && position1.Value < dataGridView.Columns.Count)
                 {
@@ -138,15 +174,17 @@ namespace kursovaya
             }
 
             // Добавление выпадающего списка для второго внешнего ключа
-            if (foreignKeyField2 != null && referenceTable2 != null && referenceField2 != null)
+            if (foreignKeyField2 != null && referenceTable2 != null && referenceField2 != null && displayMember2 != null)
             {
+                DataTable referenceData2 = GetReferenceData(referenceTable2, referenceField2, displayMember2);
                 DataGridViewComboBoxColumn comboColumn2 = new DataGridViewComboBoxColumn
                 {
-                    HeaderText = foreignKeyField2,
                     DataPropertyName = foreignKeyField2,
-                    DataSource = GetReferenceData(referenceTable2, referenceField2),
+                    HeaderText = displayMember2,
+                    DataSource = referenceData2,
                     ValueMember = referenceField2,
-                    DisplayMember = referenceField2
+                    DisplayMember = displayMember2,
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
                 };
                 if (position2.HasValue && position2.Value < dataGridView.Columns.Count)
                 {
@@ -158,9 +196,31 @@ namespace kursovaya
                 }
             }
 
+            // Добавление выпадающего списка для третьего внешнего ключа
+            if (foreignKeyField3 != null && referenceTable3 != null && referenceField3 != null && displayMember3 != null)
+            {
+                DataTable referenceData3 = GetReferenceData(referenceTable3, referenceField3, displayMember3);
+                DataGridViewComboBoxColumn comboColumn3 = new DataGridViewComboBoxColumn
+                {
+                    DataPropertyName = foreignKeyField3,
+                    HeaderText = displayMember3,
+                    DataSource = referenceData3,
+                    ValueMember = referenceField3,
+                    DisplayMember = displayMember3,
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
+                };
+                if (position3.HasValue && position3.Value < dataGridView.Columns.Count)
+                {
+                    dataGridView.Columns.Insert(position3.Value, comboColumn3);
+                }
+                else
+                {
+                    dataGridView.Columns.Add(comboColumn3);
+                }
+            }
+
             if (LoginForm.IsAdmin)
             {
-                SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(localAdapter);
                 bindingSource.ListChanged += (sender, args) =>
                 {
                     if (args.ListChangedType == ListChangedType.ItemAdded ||
@@ -168,16 +228,19 @@ namespace kursovaya
                         args.ListChangedType == ListChangedType.ItemChanged)
                     {
                         localAdapter.Update(localTable);
+
+                        // Перезагрузка данных для обновления ID
+                        localTable.Clear();
+                        localAdapter.Fill(localTable);
                     }
                 };
 
                 if (addHandler != null)
                 {
                     addButton.Click += (sender, e) => addHandler(localTable);
-                }               
+                }
 
                 deleteButton.Click += (sender, e) => DeleteRow(dataGridView, localTable, localAdapter);
-                updateButton.Click += (sender, e) => UpdateRow(dataGridView, localAdapter);
             }
 
             tabPage.Controls.Add(toolStrip);
@@ -187,17 +250,15 @@ namespace kursovaya
 
 
 
-
-        private DataTable GetReferenceData(string tableName, string fieldName)
+        private DataTable GetReferenceData(string referenceTable, string referenceField, string displayField)
         {
-            DataTable referenceData = new DataTable();
-            string query = $"SELECT {fieldName} FROM dbo.{tableName}";
-            using (SqlCommand command = new SqlCommand(query, sqlConnection))
+            DataTable referenceTableData = new DataTable();
+            string query = $"SELECT {referenceField}, {displayField} FROM {referenceTable}";
+            using (SqlDataAdapter adapter = new SqlDataAdapter(query, sqlConnection))
             {
-                SqlDataAdapter adapter = new SqlDataAdapter(command);
-                adapter.Fill(referenceData);
+                adapter.Fill(referenceTableData);
             }
-            return referenceData;
+            return referenceTableData;
         }
 
 
@@ -213,12 +274,6 @@ namespace kursovaya
             sqlDataAdapter.Update(dataTable);
         }
 
-        private void UpdateRow(DataGridView dataGridView, SqlDataAdapter sqlDataAdapter)
-        {
-            // Здесь предполагается, что изменения уже были внесены в DataGridView и нужно просто обновить данные
-            sqlDataAdapter.Update((DataTable)dataGridView.DataSource);
-        }
-
         private void AddEditAthlete(DataTable dataTable)
         {
             using (AddEditAthleteForm form = new AddEditAthleteForm())
@@ -226,7 +281,7 @@ namespace kursovaya
                 if (form.ShowDialog() == DialogResult.OK)
                 {
                     DataRow newRow = dataTable.NewRow();
-                    newRow["FIO"] = form.FIO;
+                    newRow["AthleteFIO"] = form.FIO;
                     newRow["Department"] = form.Department;
                     newRow["GroupID"] = form.GroupID;
                     newRow["TrainerID"] = form.TrainerID;
@@ -236,10 +291,10 @@ namespace kursovaya
                     newRow["Education_begin"] = form.EducationBegin;
 
                     // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Athletes (FIO, Department, GroupID, TrainerID, Ranking, Heights, Weights, Education_begin) VALUES (@FIO, @Department, @GroupID, @TrainerID, @Ranking, @Heights, @Weights, @Education_begin); SELECT SCOPE_IDENTITY();";
+                    string insertQuery = "INSERT INTO Athletes (AthleteFIO, Department, GroupID, TrainerID, Ranking, Heights, Weights, Education_begin) VALUES (@AthleteFIO, @Department, @GroupID, @TrainerID, @Ranking, @Heights, @Weights, @Education_begin); SELECT SCOPE_IDENTITY();";
                     using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
                     {
-                        cmd.Parameters.AddWithValue("@FIO", form.FIO);
+                        cmd.Parameters.AddWithValue("@AthleteFIO", form.FIO);
                         cmd.Parameters.AddWithValue("@Department", form.Department);
                         cmd.Parameters.AddWithValue("@GroupID", form.GroupID);
                         cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
@@ -256,16 +311,19 @@ namespace kursovaya
                         }
                     }
 
-                    // Добавляем новую строку в DataTable
-                    dataTable.Rows.Add(newRow);
-
                     // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
                     dataTable.Clear();
-                    sqlDataAdapter.Fill(dataTable);
+
+                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
+                    string selectQuery = "SELECT * FROM Athletes";
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, Program.connectionStringColledge))
+                    {
+                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
+                        adapter.Fill(dataTable);
+                    }
                 }
             }
         }
-
 
         private void AddEditCompetition(DataTable dataTable)
         {
@@ -277,16 +335,32 @@ namespace kursovaya
                     newRow["CompetitionName"] = form.CompetitionName;
                     newRow["CompetitionPlace"] = form.CompetitionPlace;
                     newRow["CompetitionDate"] = form.CompetitionDate;
-                    dataTable.Rows.Add(newRow);
 
-                    // Сохранение новой строки в базу данных
-                    using (SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(sqlDataAdapter))
+                    // Сначала добавляем новую строку в базу данных
+                    string insertQuery = "INSERT INTO Competitions (CompetitionName, CompetitionPlace, CompetitionDate) VALUES (@CompetitionName, @CompetitionPlace, @CompetitionDate); SELECT SCOPE_IDENTITY();";
+                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
                     {
-                        sqlDataAdapter.Update(dataTable);
+                        cmd.Parameters.AddWithValue("@CompetitionName", form.CompetitionName);
+                        cmd.Parameters.AddWithValue("@CompetitionPlace", form.CompetitionPlace);
+                        cmd.Parameters.AddWithValue("@CompetitionDate", form.CompetitionDate);
 
-                        // Перезагрузка данных для обновления ID
-                        dataTable.Clear();
-                        sqlDataAdapter.Fill(dataTable);
+                        // Выполняем запрос и получаем новый ID
+                        object newId = cmd.ExecuteScalar();
+                        if (newId != null && newId != DBNull.Value)
+                        {
+                            newRow["id"] = Convert.ToInt32(newId);
+                        }
+                    }
+
+                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
+                    dataTable.Clear();
+
+                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
+                    string selectQuery = "SELECT * FROM Competitions";
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    {
+                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
+                        adapter.Fill(dataTable);
                     }
                 }
             }
@@ -298,13 +372,10 @@ namespace kursovaya
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    DataRow newRow = dataTable.NewRow();
-                    newRow["CompetitionID"] = form.CompetitionID;
-                    newRow["AthleteID"] = form.AthleteID;
-                    newRow["Category"] = form.Category;
-
                     // Сначала добавляем новую строку в базу данных
                     string insertQuery = "INSERT INTO Competition_participating (CompetitionID, AthleteID, Category) VALUES (@CompetitionID, @AthleteID, @Category); SELECT SCOPE_IDENTITY();";
+                    int newId;
+
                     using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
                     {
                         cmd.Parameters.AddWithValue("@CompetitionID", form.CompetitionID);
@@ -312,19 +383,49 @@ namespace kursovaya
                         cmd.Parameters.AddWithValue("@Category", form.Category);
 
                         // Выполняем запрос и получаем новый ID
-                        object newId = cmd.ExecuteScalar();
-                        if (newId != null && newId != DBNull.Value)
-                        {
-                            newRow["id"] = Convert.ToInt32(newId);
-                        }
+                        newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
-
-                    // Добавляем новую строку в DataTable
-                    dataTable.Rows.Add(newRow);
 
                     // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
                     dataTable.Clear();
-                    sqlDataAdapter.Fill(dataTable);
+
+                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
+                    string selectQuery = "SELECT * FROM Competition_participating";
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    {
+                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
+                        adapter.Fill(dataTable);
+                    }
+                }
+            }
+        }
+
+        private void AddEditDepartment(DataTable dataTable)
+        {
+            using (AddEditDepartmentForm form = new AddEditDepartmentForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    // Сначала добавляем новую строку в базу данных
+                    string insertQuery = "INSERT INTO Departments (DepartmentName, Building) VALUES (@DepartmentName, @Building);";
+
+                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@DepartmentName", form.DepartmentName);
+                        cmd.Parameters.AddWithValue("@Building", form.Building);
+                        cmd.ExecuteScalar();
+                    }
+
+                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
+                    dataTable.Clear();
+
+                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
+                    string selectQuery = "SELECT * FROM Departments";
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    {
+                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
+                        adapter.Fill(dataTable);
+                    }
                 }
             }
         }

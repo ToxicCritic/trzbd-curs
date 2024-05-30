@@ -43,13 +43,13 @@
             this.competitionNameLabel.AutoSize = true;
             this.competitionNameLabel.Location = new System.Drawing.Point(12, 15);
             this.competitionNameLabel.Name = "competitionNameLabel";
-            this.competitionNameLabel.Size = new System.Drawing.Size(92, 13);
+            this.competitionNameLabel.Size = new System.Drawing.Size(132, 13);
             this.competitionNameLabel.TabIndex = 0;
             this.competitionNameLabel.Text = "Название соревнования";
             // 
             // competitionNameTextBox
             // 
-            this.competitionNameTextBox.Location = new System.Drawing.Point(120, 12);
+            this.competitionNameTextBox.Location = new System.Drawing.Point(151, 12);
             this.competitionNameTextBox.Name = "competitionNameTextBox";
             this.competitionNameTextBox.Size = new System.Drawing.Size(200, 20);
             this.competitionNameTextBox.TabIndex = 1;
@@ -59,13 +59,13 @@
             this.competitionPlaceLabel.AutoSize = true;
             this.competitionPlaceLabel.Location = new System.Drawing.Point(12, 41);
             this.competitionPlaceLabel.Name = "competitionPlaceLabel";
-            this.competitionPlaceLabel.Size = new System.Drawing.Size(96, 13);
+            this.competitionPlaceLabel.Size = new System.Drawing.Size(102, 13);
             this.competitionPlaceLabel.TabIndex = 2;
             this.competitionPlaceLabel.Text = "Место проведения";
             // 
             // competitionPlaceTextBox
             // 
-            this.competitionPlaceTextBox.Location = new System.Drawing.Point(120, 38);
+            this.competitionPlaceTextBox.Location = new System.Drawing.Point(151, 38);
             this.competitionPlaceTextBox.Name = "competitionPlaceTextBox";
             this.competitionPlaceTextBox.Size = new System.Drawing.Size(200, 20);
             this.competitionPlaceTextBox.TabIndex = 3;
@@ -82,14 +82,14 @@
             // competitionDatePicker
             // 
             this.competitionDatePicker.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.competitionDatePicker.Location = new System.Drawing.Point(120, 64);
+            this.competitionDatePicker.Location = new System.Drawing.Point(151, 64);
             this.competitionDatePicker.Name = "competitionDatePicker";
             this.competitionDatePicker.Size = new System.Drawing.Size(200, 20);
             this.competitionDatePicker.TabIndex = 5;
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(15, 100);
+            this.saveButton.Location = new System.Drawing.Point(277, 100);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 6;
@@ -99,7 +99,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(245, 100);
+            this.cancelButton.Location = new System.Drawing.Point(15, 100);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 7;
@@ -109,7 +109,7 @@
             // 
             // AddEditCompetitionForm
             // 
-            this.ClientSize = new System.Drawing.Size(334, 141);
+            this.ClientSize = new System.Drawing.Size(364, 141);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.competitionDatePicker);
@@ -122,6 +122,7 @@
             this.Text = "Добавить/Редактировать соревнование";
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion

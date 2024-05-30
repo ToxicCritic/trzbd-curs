@@ -7,7 +7,6 @@ namespace kursovaya
 {
     public partial class AddEditAthleteForm : Form
     {
-        private readonly string connectionString = @"Server=ADCLG1;Database=Лифляндский_СпортШколаОлимпРезерва;Integrated Security=true;";
 
         public string FIO { get; private set; }
         public string Department { get; private set; }
@@ -28,7 +27,7 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
-            FIO = athleteRow["FIO"].ToString();
+            FIO = athleteRow["AthleteFIO"].ToString();
             Department = athleteRow["Department"].ToString();
             GroupID = (int)athleteRow["GroupID"];
             TrainerID = (int)athleteRow["TrainerID"];
@@ -47,11 +46,9 @@ namespace kursovaya
             educationBeginPicker.Value = EducationBegin;
         }
 
-        
-
         private void LoadComboBoxData()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
             {
                 connection.Open();
 
@@ -62,18 +59,18 @@ namespace kursovaya
                 departmentComboBox.DisplayMember = "DepartmentName";
                 departmentComboBox.ValueMember = "DepartmentName";
 
-                SqlDataAdapter groupAdapter = new SqlDataAdapter("SELECT id FROM Groups", connection);
+                SqlDataAdapter groupAdapter = new SqlDataAdapter("SELECT GroupId FROM Groups", connection);
                 DataTable groupTable = new DataTable();
                 groupAdapter.Fill(groupTable);
                 groupComboBox.DataSource = groupTable;
-                groupComboBox.DisplayMember = "id";
-                groupComboBox.ValueMember = "id";
+                groupComboBox.DisplayMember = "GroupId";
+                groupComboBox.ValueMember = "GroupId";
 
-                SqlDataAdapter trainerAdapter = new SqlDataAdapter("SELECT id, FIO FROM Trainers", connection);
+                SqlDataAdapter trainerAdapter = new SqlDataAdapter("SELECT id, TrainerFIO FROM Trainers", connection);
                 DataTable trainerTable = new DataTable();
                 trainerAdapter.Fill(trainerTable);
                 trainerComboBox.DataSource = trainerTable;
-                trainerComboBox.DisplayMember = "FIO";
+                trainerComboBox.DisplayMember = "TrainerFIO";
                 trainerComboBox.ValueMember = "id";
             }
         }

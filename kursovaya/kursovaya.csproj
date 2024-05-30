@@ -64,6 +64,12 @@
     <Compile Include="AddEditCompetitionParticipatingForm.Designer.cs">
       <DependentUpon>AddEditCompetitionParticipatingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="AddEditDepartmentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditDepartmentForm.Designer.cs">
+      <DependentUpon>AddEditDepartmentForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AddUserForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -86,6 +92,18 @@
     <Compile Include="PasswordHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddEditAthleteForm.resx">
+      <DependentUpon>AddEditAthleteForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditCompetitionForm.resx">
+      <DependentUpon>AddEditCompetitionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditCompetitionParticipatingForm.resx">
+      <DependentUpon>AddEditCompetitionParticipatingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditDepartmentForm.resx">
+      <DependentUpon>AddEditDepartmentForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>

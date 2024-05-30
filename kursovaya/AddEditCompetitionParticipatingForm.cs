@@ -14,16 +14,13 @@ namespace kursovaya
         public AddEditCompetitionParticipatingForm()
         {
             InitializeComponent();
-            LoadCompetitionData();
-            LoadAthleteData();
+            LoadComboBoxData();
         }
 
         public AddEditCompetitionParticipatingForm(DataRow competitionParticipatingRow)
         {
             InitializeComponent();
-            LoadCompetitionData();
-            LoadAthleteData();
-
+            LoadComboBoxData();
             CompetitionID = (int)competitionParticipatingRow["CompetitionID"];
             AthleteID = (int)competitionParticipatingRow["AthleteID"];
             Category = competitionParticipatingRow["Category"].ToString();
@@ -33,49 +30,27 @@ namespace kursovaya
             categoryTextBox.Text = Category;
         }
 
-        private void LoadCompetitionData()
+        private void LoadComboBoxData()
         {
             using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
             {
-                try
-                {
-                    connection.Open();
-                    string query = "SELECT id, CompetitionName FROM Competitions";
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
+                connection.Open();
 
-                    competitionComboBox.DataSource = dataTable;
-                    competitionComboBox.DisplayMember = "CompetitionName";
-                    competitionComboBox.ValueMember = "id";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error loading competition data: {ex.Message}");
-                }
-            }
-        }
+                // Загрузка данных для соревнований
+                SqlDataAdapter competitionAdapter = new SqlDataAdapter("SELECT id, CompetitionName FROM Competitions", connection);
+                DataTable competitionTable = new DataTable();
+                competitionAdapter.Fill(competitionTable);
+                competitionComboBox.DataSource = competitionTable;
+                competitionComboBox.DisplayMember = "CompetitionName";
+                competitionComboBox.ValueMember = "id";
 
-        private void LoadAthleteData()
-        {
-            using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
-            {
-                try
-                {
-                    connection.Open();
-                    string query = "SELECT id, FIO FROM Athletes";
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
-
-                    athleteComboBox.DataSource = dataTable;
-                    athleteComboBox.DisplayMember = "FIO";
-                    athleteComboBox.ValueMember = "id";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error loading athlete data: {ex.Message}");
-                }
+                // Загрузка данных для атлетов
+                SqlDataAdapter athleteAdapter = new SqlDataAdapter("SELECT id, AthleteFIO FROM Athletes", connection);
+                DataTable athleteTable = new DataTable();
+                athleteAdapter.Fill(athleteTable);
+                athleteComboBox.DataSource = athleteTable;
+                athleteComboBox.DisplayMember = "AthleteFIO";
+                athleteComboBox.ValueMember = "id";
             }
         }
 
