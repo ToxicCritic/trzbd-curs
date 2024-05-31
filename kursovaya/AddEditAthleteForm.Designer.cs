@@ -58,7 +58,7 @@ namespace kursovaya
             this.fioLabel.AutoSize = true;
             this.fioLabel.Location = new System.Drawing.Point(12, 15);
             this.fioLabel.Name = "fioLabel";
-            this.fioLabel.Size = new System.Drawing.Size(34, 13);
+            this.fioLabel.Size = new System.Drawing.Size(33, 14);
             this.fioLabel.TabIndex = 0;
             this.fioLabel.Text = "ФИО";
             // 
@@ -66,7 +66,7 @@ namespace kursovaya
             // 
             this.fioTextBox.Location = new System.Drawing.Point(120, 12);
             this.fioTextBox.Name = "fioTextBox";
-            this.fioTextBox.Size = new System.Drawing.Size(200, 20);
+            this.fioTextBox.Size = new System.Drawing.Size(200, 22);
             this.fioTextBox.TabIndex = 1;
             // 
             // departmentLabel
@@ -74,16 +74,17 @@ namespace kursovaya
             this.departmentLabel.AutoSize = true;
             this.departmentLabel.Location = new System.Drawing.Point(12, 42);
             this.departmentLabel.Name = "departmentLabel";
-            this.departmentLabel.Size = new System.Drawing.Size(62, 13);
+            this.departmentLabel.Size = new System.Drawing.Size(68, 14);
             this.departmentLabel.TabIndex = 2;
             this.departmentLabel.Text = "Отделение";
             // 
             // departmentComboBox
             // 
             this.departmentComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.departmentComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.departmentComboBox.Location = new System.Drawing.Point(120, 39);
             this.departmentComboBox.Name = "departmentComboBox";
-            this.departmentComboBox.Size = new System.Drawing.Size(200, 21);
+            this.departmentComboBox.Size = new System.Drawing.Size(200, 22);
             this.departmentComboBox.TabIndex = 3;
             // 
             // groupLabel
@@ -91,16 +92,17 @@ namespace kursovaya
             this.groupLabel.AutoSize = true;
             this.groupLabel.Location = new System.Drawing.Point(12, 69);
             this.groupLabel.Name = "groupLabel";
-            this.groupLabel.Size = new System.Drawing.Size(42, 13);
+            this.groupLabel.Size = new System.Drawing.Size(46, 14);
             this.groupLabel.TabIndex = 4;
             this.groupLabel.Text = "Группа";
             // 
             // groupComboBox
             // 
             this.groupComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.groupComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.groupComboBox.Location = new System.Drawing.Point(120, 66);
             this.groupComboBox.Name = "groupComboBox";
-            this.groupComboBox.Size = new System.Drawing.Size(200, 21);
+            this.groupComboBox.Size = new System.Drawing.Size(200, 22);
             this.groupComboBox.TabIndex = 5;
             // 
             // trainerLabel
@@ -108,16 +110,17 @@ namespace kursovaya
             this.trainerLabel.AutoSize = true;
             this.trainerLabel.Location = new System.Drawing.Point(12, 96);
             this.trainerLabel.Name = "trainerLabel";
-            this.trainerLabel.Size = new System.Drawing.Size(44, 13);
+            this.trainerLabel.Size = new System.Drawing.Size(46, 14);
             this.trainerLabel.TabIndex = 6;
             this.trainerLabel.Text = "Тренер";
             // 
             // trainerComboBox
             // 
             this.trainerComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.trainerComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.trainerComboBox.Location = new System.Drawing.Point(120, 93);
             this.trainerComboBox.Name = "trainerComboBox";
-            this.trainerComboBox.Size = new System.Drawing.Size(200, 21);
+            this.trainerComboBox.Size = new System.Drawing.Size(200, 22);
             this.trainerComboBox.TabIndex = 7;
             // 
             // rankingLabel
@@ -125,7 +128,7 @@ namespace kursovaya
             this.rankingLabel.AutoSize = true;
             this.rankingLabel.Location = new System.Drawing.Point(12, 123);
             this.rankingLabel.Name = "rankingLabel";
-            this.rankingLabel.Size = new System.Drawing.Size(48, 13);
+            this.rankingLabel.Size = new System.Drawing.Size(51, 14);
             this.rankingLabel.TabIndex = 8;
             this.rankingLabel.Text = "Рейтинг";
             // 
@@ -133,7 +136,7 @@ namespace kursovaya
             // 
             this.rankingTextBox.Location = new System.Drawing.Point(120, 120);
             this.rankingTextBox.Name = "rankingTextBox";
-            this.rankingTextBox.Size = new System.Drawing.Size(200, 20);
+            this.rankingTextBox.Size = new System.Drawing.Size(200, 22);
             this.rankingTextBox.TabIndex = 9;
             // 
             // heightsLabel
@@ -141,7 +144,7 @@ namespace kursovaya
             this.heightsLabel.AutoSize = true;
             this.heightsLabel.Location = new System.Drawing.Point(12, 149);
             this.heightsLabel.Name = "heightsLabel";
-            this.heightsLabel.Size = new System.Drawing.Size(31, 13);
+            this.heightsLabel.Size = new System.Drawing.Size(32, 14);
             this.heightsLabel.TabIndex = 10;
             this.heightsLabel.Text = "Рост";
             // 
@@ -149,7 +152,7 @@ namespace kursovaya
             // 
             this.heightsNumericUpDown.Location = new System.Drawing.Point(120, 147);
             this.heightsNumericUpDown.Name = "heightsNumericUpDown";
-            this.heightsNumericUpDown.Size = new System.Drawing.Size(200, 20);
+            this.heightsNumericUpDown.Size = new System.Drawing.Size(200, 22);
             this.heightsNumericUpDown.TabIndex = 11;
             // 
             // weightsLabel
@@ -157,7 +160,7 @@ namespace kursovaya
             this.weightsLabel.AutoSize = true;
             this.weightsLabel.Location = new System.Drawing.Point(12, 175);
             this.weightsLabel.Name = "weightsLabel";
-            this.weightsLabel.Size = new System.Drawing.Size(26, 13);
+            this.weightsLabel.Size = new System.Drawing.Size(27, 14);
             this.weightsLabel.TabIndex = 12;
             this.weightsLabel.Text = "Вес";
             // 
@@ -165,7 +168,7 @@ namespace kursovaya
             // 
             this.weightsNumericUpDown.Location = new System.Drawing.Point(120, 173);
             this.weightsNumericUpDown.Name = "weightsNumericUpDown";
-            this.weightsNumericUpDown.Size = new System.Drawing.Size(200, 20);
+            this.weightsNumericUpDown.Size = new System.Drawing.Size(200, 22);
             this.weightsNumericUpDown.TabIndex = 13;
             // 
             // educationBeginLabel
@@ -173,7 +176,7 @@ namespace kursovaya
             this.educationBeginLabel.AutoSize = true;
             this.educationBeginLabel.Location = new System.Drawing.Point(12, 201);
             this.educationBeginLabel.Name = "educationBeginLabel";
-            this.educationBeginLabel.Size = new System.Drawing.Size(93, 13);
+            this.educationBeginLabel.Size = new System.Drawing.Size(104, 14);
             this.educationBeginLabel.TabIndex = 14;
             this.educationBeginLabel.Text = "Начало обучения";
             // 
@@ -182,7 +185,7 @@ namespace kursovaya
             this.educationBeginPicker.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.educationBeginPicker.Location = new System.Drawing.Point(120, 199);
             this.educationBeginPicker.Name = "educationBeginPicker";
-            this.educationBeginPicker.Size = new System.Drawing.Size(200, 20);
+            this.educationBeginPicker.Size = new System.Drawing.Size(200, 22);
             this.educationBeginPicker.TabIndex = 15;
             // 
             // saveButton
@@ -197,7 +200,7 @@ namespace kursovaya
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(15, 226);
+            this.cancelButton.Location = new System.Drawing.Point(12, 225);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 17;
@@ -207,6 +210,7 @@ namespace kursovaya
             // 
             // AddEditAthleteForm
             // 
+            this.BackColor = System.Drawing.Color.Honeydew;
             this.ClientSize = new System.Drawing.Size(334, 261);
             this.Controls.Add(this.fioLabel);
             this.Controls.Add(this.fioTextBox);
@@ -226,6 +230,7 @@ namespace kursovaya
             this.Controls.Add(this.educationBeginPicker);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.cancelButton);
+            this.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "AddEditAthleteForm";
             this.Text = "Add/Edit Athlete";
             ((System.ComponentModel.ISupportInitialize)(this.heightsNumericUpDown)).EndInit();

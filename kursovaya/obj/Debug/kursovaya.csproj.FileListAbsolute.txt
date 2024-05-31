@@ -22,3 +22,9 @@ H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditCompetitionForm.res
 H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditAthleteForm.resources
 H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditCompetitionParticipatingForm.resources
 H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditDepartmentForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditGroupForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditStandardForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditStandardPassingForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditTrainingForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditTrainerForm.resources
+H:\ТРЗБД\kursovaya\kursovaya\obj\Debug\kursovaya.AddEditTrophyForm.resources

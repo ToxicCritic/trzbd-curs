@@ -32,30 +32,32 @@ namespace kursovaya
         /// </summary>
         private void InitializeComponent()
         {
-            this.welcomeLabel = new Label();
+            this.welcomeLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
-
             // 
             // welcomeLabel
             // 
+            this.welcomeLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.welcomeLabel.AutoSize = true;
-            this.welcomeLabel.Font = new Font("Arial", 12F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
-            this.welcomeLabel.Location = new Point(10, 570);
+            this.welcomeLabel.Font = new System.Drawing.Font("Bahnschrift", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.welcomeLabel.Location = new System.Drawing.Point(10, 570);
             this.welcomeLabel.Name = "welcomeLabel";
-            this.welcomeLabel.Size = new Size(250, 19);
+            this.welcomeLabel.Size = new System.Drawing.Size(0, 19);
             this.welcomeLabel.TabIndex = 0;
-            this.welcomeLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-
             // 
             // MainForm
             // 
-            this.ClientSize = new Size(800, 600);
+            this.BackColor = System.Drawing.Color.Honeydew;
+            this.ClientSize = new System.Drawing.Size(831, 600);
             this.Controls.Add(this.welcomeLabel);
+            this.Font = new System.Drawing.Font("Bahnschrift", 9F);
+            this.MinimumSize = new System.Drawing.Size(410, 420);
             this.Name = "MainForm";
             this.Text = "Главная форма";
-            this.FormClosing += new FormClosingEventHandler(this.MainForm_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion

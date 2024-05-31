@@ -70,6 +70,42 @@
     <Compile Include="AddEditDepartmentForm.Designer.cs">
       <DependentUpon>AddEditDepartmentForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="AddEditGroupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditGroupForm.Designer.cs">
+      <DependentUpon>AddEditGroupForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEditStandardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditStandardForm.Designer.cs">
+      <DependentUpon>AddEditStandardForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEditStandardPassingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditStandardPassingForm.Designer.cs">
+      <DependentUpon>AddEditStandardPassingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEditTrainerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditTrainerForm.Designer.cs">
+      <DependentUpon>AddEditTrainerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEditTrainingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditTrainingForm.Designer.cs">
+      <DependentUpon>AddEditTrainingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEditTrophyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEditTrophyForm.Designer.cs">
+      <DependentUpon>AddEditTrophyForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AddUserForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -103,6 +139,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AddEditDepartmentForm.resx">
       <DependentUpon>AddEditDepartmentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditGroupForm.resx">
+      <DependentUpon>AddEditGroupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditStandardForm.resx">
+      <DependentUpon>AddEditStandardForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditStandardPassingForm.resx">
+      <DependentUpon>AddEditStandardPassingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditTrainerForm.resx">
+      <DependentUpon>AddEditTrainerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditTrainingForm.resx">
+      <DependentUpon>AddEditTrainingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEditTrophyForm.resx">
+      <DependentUpon>AddEditTrophyForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>

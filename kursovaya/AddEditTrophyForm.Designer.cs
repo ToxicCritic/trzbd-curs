@@ -1,6 +1,6 @@
 ﻿namespace kursovaya
 {
-    partial class AddEditCompetitionParticipatingForm
+    partial class AddEditTrophyForm
     {
         /// <summary>
         /// Required designer variable.
@@ -32,8 +32,8 @@
             this.competitionComboBox = new System.Windows.Forms.ComboBox();
             this.athleteLabel = new System.Windows.Forms.Label();
             this.athleteComboBox = new System.Windows.Forms.ComboBox();
-            this.categoryLabel = new System.Windows.Forms.Label();
-            this.categoryTextBox = new System.Windows.Forms.TextBox();
+            this.trophyNameLabel = new System.Windows.Forms.Label();
+            this.trophyNameTextBox = new System.Windows.Forms.TextBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -49,10 +49,11 @@
             // 
             // competitionComboBox
             // 
+            this.competitionComboBox.BackColor = System.Drawing.Color.Honeydew;
             this.competitionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.competitionComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.competitionComboBox.FormattingEnabled = true;
-            this.competitionComboBox.Location = new System.Drawing.Point(116, 12);
+            this.competitionComboBox.Location = new System.Drawing.Point(150, 12);
             this.competitionComboBox.Name = "competitionComboBox";
             this.competitionComboBox.Size = new System.Drawing.Size(200, 22);
             this.competitionComboBox.TabIndex = 1;
@@ -62,39 +63,40 @@
             this.athleteLabel.AutoSize = true;
             this.athleteLabel.Location = new System.Drawing.Point(12, 42);
             this.athleteLabel.Name = "athleteLabel";
-            this.athleteLabel.Size = new System.Drawing.Size(40, 14);
+            this.athleteLabel.Size = new System.Drawing.Size(43, 14);
             this.athleteLabel.TabIndex = 2;
-            this.athleteLabel.Text = "Атлет";
+            this.athleteLabel.Text = "Атлет:";
             // 
             // athleteComboBox
             // 
+            this.athleteComboBox.BackColor = System.Drawing.Color.Honeydew;
             this.athleteComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.athleteComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.athleteComboBox.FormattingEnabled = true;
-            this.athleteComboBox.Location = new System.Drawing.Point(116, 39);
+            this.athleteComboBox.Location = new System.Drawing.Point(150, 39);
             this.athleteComboBox.Name = "athleteComboBox";
             this.athleteComboBox.Size = new System.Drawing.Size(200, 22);
             this.athleteComboBox.TabIndex = 3;
             // 
-            // categoryLabel
+            // trophyNameLabel
             // 
-            this.categoryLabel.AutoSize = true;
-            this.categoryLabel.Location = new System.Drawing.Point(12, 69);
-            this.categoryLabel.Name = "categoryLabel";
-            this.categoryLabel.Size = new System.Drawing.Size(65, 14);
-            this.categoryLabel.TabIndex = 4;
-            this.categoryLabel.Text = "Категория";
+            this.trophyNameLabel.AutoSize = true;
+            this.trophyNameLabel.Location = new System.Drawing.Point(12, 69);
+            this.trophyNameLabel.Name = "trophyNameLabel";
+            this.trophyNameLabel.Size = new System.Drawing.Size(103, 14);
+            this.trophyNameLabel.TabIndex = 4;
+            this.trophyNameLabel.Text = "Название трофея";
             // 
-            // categoryTextBox
+            // trophyNameTextBox
             // 
-            this.categoryTextBox.Location = new System.Drawing.Point(116, 66);
-            this.categoryTextBox.Name = "categoryTextBox";
-            this.categoryTextBox.Size = new System.Drawing.Size(200, 22);
-            this.categoryTextBox.TabIndex = 5;
+            this.trophyNameTextBox.Location = new System.Drawing.Point(150, 66);
+            this.trophyNameTextBox.Name = "trophyNameTextBox";
+            this.trophyNameTextBox.Size = new System.Drawing.Size(200, 22);
+            this.trophyNameTextBox.TabIndex = 5;
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(241, 100);
+            this.saveButton.Location = new System.Drawing.Point(275, 92);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 6;
@@ -104,7 +106,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(15, 100);
+            this.cancelButton.Location = new System.Drawing.Point(12, 92);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 7;
@@ -112,21 +114,21 @@
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
-            // AddEditCompetitionParticipatingForm
+            // AddEditTrophyForm
             // 
             this.BackColor = System.Drawing.Color.Honeydew;
-            this.ClientSize = new System.Drawing.Size(334, 141);
+            this.ClientSize = new System.Drawing.Size(362, 127);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
-            this.Controls.Add(this.categoryTextBox);
-            this.Controls.Add(this.categoryLabel);
+            this.Controls.Add(this.trophyNameTextBox);
+            this.Controls.Add(this.trophyNameLabel);
             this.Controls.Add(this.athleteComboBox);
             this.Controls.Add(this.athleteLabel);
             this.Controls.Add(this.competitionComboBox);
             this.Controls.Add(this.competitionLabel);
-            this.Font = new System.Drawing.Font("Bahnschrift", 9F);
-            this.Name = "AddEditCompetitionParticipatingForm";
-            this.Text = "Добавить/Редактировать участие в соревновании";
+            this.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Name = "AddEditTrophyForm";
+            this.Text = "Добавить/Редактировать трофей";
             this.ResumeLayout(false);
             this.PerformLayout();
 

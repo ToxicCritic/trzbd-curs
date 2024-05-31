@@ -43,7 +43,7 @@
             this.competitionNameLabel.AutoSize = true;
             this.competitionNameLabel.Location = new System.Drawing.Point(12, 15);
             this.competitionNameLabel.Name = "competitionNameLabel";
-            this.competitionNameLabel.Size = new System.Drawing.Size(132, 13);
+            this.competitionNameLabel.Size = new System.Drawing.Size(140, 14);
             this.competitionNameLabel.TabIndex = 0;
             this.competitionNameLabel.Text = "Название соревнования";
             // 
@@ -51,7 +51,7 @@
             // 
             this.competitionNameTextBox.Location = new System.Drawing.Point(151, 12);
             this.competitionNameTextBox.Name = "competitionNameTextBox";
-            this.competitionNameTextBox.Size = new System.Drawing.Size(200, 20);
+            this.competitionNameTextBox.Size = new System.Drawing.Size(200, 22);
             this.competitionNameTextBox.TabIndex = 1;
             // 
             // competitionPlaceLabel
@@ -59,7 +59,7 @@
             this.competitionPlaceLabel.AutoSize = true;
             this.competitionPlaceLabel.Location = new System.Drawing.Point(12, 41);
             this.competitionPlaceLabel.Name = "competitionPlaceLabel";
-            this.competitionPlaceLabel.Size = new System.Drawing.Size(102, 13);
+            this.competitionPlaceLabel.Size = new System.Drawing.Size(111, 14);
             this.competitionPlaceLabel.TabIndex = 2;
             this.competitionPlaceLabel.Text = "Место проведения";
             // 
@@ -67,7 +67,7 @@
             // 
             this.competitionPlaceTextBox.Location = new System.Drawing.Point(151, 38);
             this.competitionPlaceTextBox.Name = "competitionPlaceTextBox";
-            this.competitionPlaceTextBox.Size = new System.Drawing.Size(200, 20);
+            this.competitionPlaceTextBox.Size = new System.Drawing.Size(200, 22);
             this.competitionPlaceTextBox.TabIndex = 3;
             // 
             // competitionDateLabel
@@ -75,7 +75,7 @@
             this.competitionDateLabel.AutoSize = true;
             this.competitionDateLabel.Location = new System.Drawing.Point(12, 67);
             this.competitionDateLabel.Name = "competitionDateLabel";
-            this.competitionDateLabel.Size = new System.Drawing.Size(33, 13);
+            this.competitionDateLabel.Size = new System.Drawing.Size(34, 14);
             this.competitionDateLabel.TabIndex = 4;
             this.competitionDateLabel.Text = "Дата";
             // 
@@ -84,7 +84,7 @@
             this.competitionDatePicker.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.competitionDatePicker.Location = new System.Drawing.Point(151, 64);
             this.competitionDatePicker.Name = "competitionDatePicker";
-            this.competitionDatePicker.Size = new System.Drawing.Size(200, 20);
+            this.competitionDatePicker.Size = new System.Drawing.Size(200, 22);
             this.competitionDatePicker.TabIndex = 5;
             // 
             // saveButton
@@ -109,6 +109,7 @@
             // 
             // AddEditCompetitionForm
             // 
+            this.BackColor = System.Drawing.Color.Honeydew;
             this.ClientSize = new System.Drawing.Size(364, 141);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
@@ -118,6 +119,7 @@
             this.Controls.Add(this.competitionPlaceLabel);
             this.Controls.Add(this.competitionNameTextBox);
             this.Controls.Add(this.competitionNameLabel);
+            this.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "AddEditCompetitionForm";
             this.Text = "Добавить/Редактировать соревнование";
             this.ResumeLayout(false);

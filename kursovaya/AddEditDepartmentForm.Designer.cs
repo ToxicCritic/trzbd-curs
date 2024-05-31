@@ -41,7 +41,7 @@
             this.departmentNameLabel.AutoSize = true;
             this.departmentNameLabel.Location = new System.Drawing.Point(12, 15);
             this.departmentNameLabel.Name = "departmentNameLabel";
-            this.departmentNameLabel.Size = new System.Drawing.Size(95, 13);
+            this.departmentNameLabel.Size = new System.Drawing.Size(102, 14);
             this.departmentNameLabel.TabIndex = 0;
             this.departmentNameLabel.Text = "Название отдела";
             // 
@@ -49,7 +49,7 @@
             // 
             this.departmentNameTextBox.Location = new System.Drawing.Point(150, 12);
             this.departmentNameTextBox.Name = "departmentNameTextBox";
-            this.departmentNameTextBox.Size = new System.Drawing.Size(200, 20);
+            this.departmentNameTextBox.Size = new System.Drawing.Size(200, 22);
             this.departmentNameTextBox.TabIndex = 1;
             // 
             // buildingLabel
@@ -57,7 +57,7 @@
             this.buildingLabel.AutoSize = true;
             this.buildingLabel.Location = new System.Drawing.Point(12, 41);
             this.buildingLabel.Name = "buildingLabel";
-            this.buildingLabel.Size = new System.Drawing.Size(44, 13);
+            this.buildingLabel.Size = new System.Drawing.Size(48, 14);
             this.buildingLabel.TabIndex = 2;
             this.buildingLabel.Text = "Здание";
             // 
@@ -65,7 +65,7 @@
             // 
             this.buildingTextBox.Location = new System.Drawing.Point(150, 38);
             this.buildingTextBox.Name = "buildingTextBox";
-            this.buildingTextBox.Size = new System.Drawing.Size(200, 20);
+            this.buildingTextBox.Size = new System.Drawing.Size(200, 22);
             this.buildingTextBox.TabIndex = 3;
             // 
             // saveButton
@@ -80,7 +80,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(15, 64);
+            this.cancelButton.Location = new System.Drawing.Point(12, 64);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 5;
@@ -90,6 +90,7 @@
             // 
             // AddEditDepartmentForm
             // 
+            this.BackColor = System.Drawing.Color.Honeydew;
             this.ClientSize = new System.Drawing.Size(362, 99);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
@@ -97,6 +98,7 @@
             this.Controls.Add(this.buildingLabel);
             this.Controls.Add(this.departmentNameTextBox);
             this.Controls.Add(this.departmentNameLabel);
+            this.Font = new System.Drawing.Font("Bahnschrift", 9F);
             this.Name = "AddEditDepartmentForm";
             this.Text = "Добавить/Редактировать отдел";
             this.ResumeLayout(false);
