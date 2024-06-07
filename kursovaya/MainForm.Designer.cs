@@ -48,7 +48,7 @@ namespace kursovaya
             // MainForm
             // 
             this.BackColor = System.Drawing.Color.Honeydew;
-            this.ClientSize = new System.Drawing.Size(831, 600);
+            this.ClientSize = new System.Drawing.Size(949, 600);
             this.Controls.Add(this.welcomeLabel);
             this.Font = new System.Drawing.Font("Bahnschrift", 9F);
             this.MinimumSize = new System.Drawing.Size(410, 420);

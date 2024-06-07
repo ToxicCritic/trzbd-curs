@@ -151,6 +151,11 @@ namespace kursovaya
             // heightsNumericUpDown
             // 
             this.heightsNumericUpDown.Location = new System.Drawing.Point(120, 147);
+            this.heightsNumericUpDown.Maximum = new decimal(new int[] {
+            220,
+            0,
+            0,
+            0});
             this.heightsNumericUpDown.Name = "heightsNumericUpDown";
             this.heightsNumericUpDown.Size = new System.Drawing.Size(200, 22);
             this.heightsNumericUpDown.TabIndex = 11;
@@ -167,6 +172,11 @@ namespace kursovaya
             // weightsNumericUpDown
             // 
             this.weightsNumericUpDown.Location = new System.Drawing.Point(120, 173);
+            this.weightsNumericUpDown.Maximum = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
             this.weightsNumericUpDown.Name = "weightsNumericUpDown";
             this.weightsNumericUpDown.Size = new System.Drawing.Size(200, 22);
             this.weightsNumericUpDown.TabIndex = 13;

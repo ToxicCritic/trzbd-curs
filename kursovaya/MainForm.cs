@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace kursovaya
 {
@@ -78,6 +79,9 @@ namespace kursovaya
             {
                 tabControl.TabPages.Add(CreateUsersTabPage());
             }
+
+            tabControl.TabPages.Add(CreateQueryTabPage());
+            tabControl.TabPages.Add(CreateReportTabPage());
 
             this.Controls.Add(tabControl);
         }
@@ -474,12 +478,6 @@ namespace kursovaya
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
-                    // Создаем новую строку и добавляем в DataTable только после успешного выполнения команды вставки
-                    DataRow newRow = dataTable.NewRow();
-                    newRow["GroupID"] = newId;
-                    newRow["TrainerID"] = form.TrainerID;
-                    newRow["Department"] = form.Department;
-                    dataTable.Rows.Add(newRow);
 
                     // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
                     dataTable.Clear();
@@ -653,14 +651,6 @@ namespace kursovaya
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
-                    // Создаем новую строку и добавляем в DataTable только после успешного выполнения команды вставки
-                    DataRow newRow = dataTable.NewRow();
-                    newRow["id"] = newId;
-                    newRow["CompetitionID"] = form.CompetitionID;
-                    newRow["AthleteID"] = form.AthleteID;
-                    newRow["TrophyName"] = form.TrophyName;
-                    dataTable.Rows.Add(newRow);
-
                     // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
                     dataTable.Clear();
 
@@ -678,14 +668,16 @@ namespace kursovaya
 
         private TabPage CreateUsersTabPage()
         {
-            TabPage tabPage = new TabPage("Users");
-            tabPage.BackColor = Color.Honeydew;
+            TabPage tabPage = new TabPage("Пользователи");
+
             ToolStrip toolStrip = new ToolStrip();
-            toolStrip.BackColor = Color.GhostWhite;
-            toolStrip.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             ToolStripButton addButton = new ToolStripButton("Добавить");
             ToolStripButton deleteButton = new ToolStripButton("Удалить");
             ToolStripButton changePasswordButton = new ToolStripButton("Изменить пароль");
+
+            tabPage.BackColor = Color.Honeydew;
+            toolStrip.BackColor = Color.GhostWhite;
+            toolStrip.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
 
             toolStrip.Items.Add(addButton);
             toolStrip.Items.Add(deleteButton);
@@ -700,6 +692,7 @@ namespace kursovaya
                 AllowUserToDeleteRows = true
             };
 
+            CustomizeDataGridView(usersDataGridView);
             addButton.Click += AddUserButton_Click;
             deleteButton.Click += DeleteUserButton_Click;
             changePasswordButton.Click += ChangePasswordButton_Click;
@@ -711,6 +704,7 @@ namespace kursovaya
 
             return tabPage;
         }
+
 
         private void LoadUsers(DataGridView dataGridView)
         {
@@ -812,6 +806,263 @@ namespace kursovaya
             else
             {
                 MessageBox.Show("Пожалуйста, выберите пользователя для удаления.");
+            }
+        }
+
+        private TabPage CreateQueryTabPage()
+        {
+            TabPage tabPage = new TabPage("Запросы");
+
+            Label queryLabel = new Label
+            {
+                Text = "Выберите запрос:",
+                Location = new Point(10, 10),
+                AutoSize = true
+            };
+
+            ComboBox queryComboBox = new ComboBox
+            {
+                Location = new Point(120, 10),
+                Width = 400,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                FlatStyle = FlatStyle.Popup,
+                BackColor = Color.GhostWhite,
+                Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)))
+            };
+
+            queryComboBox.Items.AddRange(new string[]
+            {
+                "Все атлеты с тренерами и департаментами",
+                "Все соревнования и участвующие атлеты",
+                "Все трофеи и информация о соревнованиях и атлетах",
+                "Количество атлетов в каждом департаменте",
+                "Все тренировки с департаментом, группой и тренером"
+            });
+
+            Button executeButton = new Button
+            {
+                Text = "Выполнить",
+                Location = new Point(530, 10),
+                Width = 80,
+                BackColor = System.Drawing.SystemColors.ActiveBorder
+            };
+
+            DataGridView resultsDataGridView = new DataGridView
+            {
+                Location = new Point(10, 50),
+                Width = 750,
+                Height = 400,
+                ReadOnly = true,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            };
+
+            CustomizeDataGridView(resultsDataGridView);
+
+            tabPage.BackColor = Color.Honeydew;
+
+            executeButton.Click += (sender, e) => ExecuteSelectedQuery(queryComboBox, resultsDataGridView);
+
+            tabPage.Controls.Add(queryLabel);
+            tabPage.Controls.Add(queryComboBox);
+            tabPage.Controls.Add(executeButton);
+            tabPage.Controls.Add(resultsDataGridView);
+
+            return tabPage;
+        }
+
+        private void ExecuteSelectedQuery(ComboBox queryComboBox, DataGridView resultsDataGridView)
+        {
+            string query = string.Empty;
+            switch (queryComboBox.SelectedIndex)
+            {
+                case 0:
+                    query = @"
+                SELECT 
+                    a.id AS AthleteID,
+                    a.AthleteFIO,
+                    t.TrainerFIO,
+                    d.DepartmentName
+                FROM Athletes a
+                INNER JOIN Trainers t ON a.TrainerID = t.id
+                INNER JOIN Departments d ON a.Department = d.DepartmentName";
+                    break;
+                case 1:
+                    query = @"
+                SELECT 
+                    c.CompetitionName,
+                    a.AthleteFIO,
+                    cp.Category
+                FROM Competition_participating cp
+                INNER JOIN Competitions c ON cp.CompetitionID = c.id
+                INNER JOIN Athletes a ON cp.AthleteID = a.id";
+                    break;
+                case 2:
+                    query = @"
+                SELECT 
+                    t.TrophyName,
+                    c.CompetitionName,
+                    a.AthleteFIO
+                FROM Trophies t
+                INNER JOIN Competitions c ON t.CompetitionID = c.id
+                INNER JOIN Athletes a ON t.AthleteID = a.id";
+                    break;
+                case 3:
+                    query = @"
+                SELECT 
+                    d.DepartmentName,
+                    COUNT(a.id) AS AthleteCount
+                FROM Departments d
+                LEFT JOIN Athletes a ON d.DepartmentName = a.Department
+                GROUP BY d.DepartmentName";
+                    break;
+                case 4:
+                    query = @"
+                SELECT 
+                    tr.TrainingDate,
+                    tr.TrainingTime,
+                    d.DepartmentName,
+                    g.GroupId,
+                    t.TrainerFIO
+                FROM Trainings tr
+                INNER JOIN Departments d ON tr.Department = d.DepartmentName
+                INNER JOIN Groups g ON tr.GroupID = g.GroupId
+                INNER JOIN Trainers t ON tr.TrainerID = t.id";
+                    break;
+            }
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                ExecuteQuery(query, resultsDataGridView);
+            }
+        }
+
+        private void ExecuteQuery(string query, DataGridView resultsDataGridView)
+        {
+            using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    SqlDataAdapter adapter = new SqlDataAdapter(command);
+                    DataTable dataTable = new DataTable();
+                    adapter.Fill(dataTable);
+
+                    resultsDataGridView.DataSource = dataTable;
+                }
+            }
+        }
+
+        private TabPage CreateReportTabPage()
+        {
+            TabPage tabPage = new TabPage("Отчеты");
+            tabPage.BackColor = Color.Honeydew;
+
+            Label reportLabel = new Label
+            {
+                Text = "Выберите отчет:",
+                Location = new Point(10, 10),
+                AutoSize = true
+            };
+
+            ComboBox reportComboBox = new ComboBox
+            {
+                Location = new Point(120, 10),
+                Width = 400,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                FlatStyle = FlatStyle.Popup,
+                BackColor = Color.GhostWhite,
+                Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)))
+            };
+
+            reportComboBox.Items.AddRange(new string[]
+            {
+        "Количество атлетов в каждом департаменте",
+        "Количество трофеев по соревнованиям"
+            });
+
+            Button generateButton = new Button
+            {
+                Text = "Сформировать отчет",
+                Width = 100,
+                Location = new Point(530, 10),
+                BackColor = System.Drawing.SystemColors.ActiveBorder
+            };
+
+            Chart reportChart = new Chart
+            {
+                Location = new Point(10, 50),
+                Width = 750,
+                Height = 400
+            };
+
+            generateButton.Click += (sender, e) => GenerateReport(reportComboBox, reportChart);
+
+            tabPage.Controls.Add(reportLabel);
+            tabPage.Controls.Add(reportComboBox);
+            tabPage.Controls.Add(generateButton);
+            tabPage.Controls.Add(reportChart);
+
+            return tabPage;
+        }
+
+        private void GenerateReport(ComboBox reportComboBox, Chart reportChart)
+        {
+            string query = string.Empty;
+            switch (reportComboBox.SelectedIndex)
+            {
+                case 0:
+                    query = @"
+                SELECT 
+                    d.DepartmentName,
+                    COUNT(a.id) AS AthleteCount
+                FROM Departments d
+                LEFT JOIN Athletes a ON d.DepartmentName = a.Department
+                GROUP BY d.DepartmentName";
+                    break;
+                case 1:
+                    query = @"
+                SELECT 
+                    c.CompetitionName,
+                    COUNT(t.id) AS TrophyCount
+                FROM Trophies t
+                INNER JOIN Competitions c ON t.CompetitionID = c.id
+                GROUP BY c.CompetitionName";
+                    break;
+            }
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        SqlDataAdapter adapter = new SqlDataAdapter(command);
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+
+                        reportChart.Series.Clear();
+                        reportChart.ChartAreas.Clear();
+                        reportChart.ChartAreas.Add(new ChartArea());
+
+                        Series series = new Series
+                        {
+                            Name = "Data",
+                            IsValueShownAsLabel = true,
+                            ChartType = SeriesChartType.Column,
+                            Color = Color.Green // Устанавливаем цвет графика на зеленый
+                        };
+
+                        reportChart.Series.Add(series);
+
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            series.Points.AddXY(row[0].ToString(), Convert.ToInt32(row[1]));
+                        }
+
+                        reportChart.Invalidate();
+                    }
+                }
             }
         }
     }

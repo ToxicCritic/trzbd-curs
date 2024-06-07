@@ -1,31 +1,41 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace kursovaya
 {
     public class AuthenticationService
     {
-        private readonly string connectionString;
+        private readonly string _connectionString;
 
         public AuthenticationService(string connectionString)
         {
-            this.connectionString = connectionString;
+            _connectionString = connectionString;
         }
 
-        public bool AuthenticateUser(string login, string password, out string status)
+        public static string HashPassword(string password)
         {
-            status = null;
-            string passwordHash = HashPassword(password);
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
+        }
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+        public bool AuthenticateUser(string username, string password, out string status)
+        {
+            status = string.Empty;
+            string hashedPassword = HashPassword(password);
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 string query = "SELECT Status FROM Users WHERE Login = @Login AND PasswordHash = @PasswordHash";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Login", login);
-                    command.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                    command.Parameters.AddWithValue("@Login", username);
+                    command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
 
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -42,33 +52,19 @@ namespace kursovaya
 
         public void AddUser(string login, string password, string status)
         {
-            string passwordHash = HashPassword(password);
+            string hashedPassword = HashPassword(password);
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 string query = "INSERT INTO Users (Login, PasswordHash, Status) VALUES (@Login, @PasswordHash, @Status)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Login", login);
-                    command.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                    command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
                     command.Parameters.AddWithValue("@Status", status);
                     command.ExecuteNonQuery();
                 }
-            }
-        }
-
-        private string HashPassword(string password)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
             }
         }
     }
