@@ -7,10 +7,10 @@ namespace kursovaya
 {
     public partial class AddEditTrainerForm : Form
     {
-        private readonly string connectionString = @"Server=ADCLG1;Database=Лифляндский_СпортШколаОлимпРезерва;Integrated Security=true;";
-
         public string TrainerFIO { get; private set; }
         public string Department { get; private set; }
+        public string Job { get; private set; }
+        public string Ranking { get; private set; }
 
         public AddEditTrainerForm()
         {
@@ -22,19 +22,24 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
             TrainerFIO = trainerRow["TrainerFIO"].ToString();
             Department = trainerRow["Department"].ToString();
-            trainerFioTextBox.Text = TrainerFIO;
+            Job = trainerRow["Job"].ToString();
+            Ranking = trainerRow["Ranking"].ToString();
+
+            trainerFIOTextBox.Text = TrainerFIO;
             departmentComboBox.SelectedValue = Department;
+            jobTextBox.Text = Job;
+            rankingTextBox.Text = Ranking;
         }
 
         private void LoadComboBoxData()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
             {
                 connection.Open();
 
-                // Загрузка данных для отделов
                 SqlDataAdapter departmentAdapter = new SqlDataAdapter("SELECT DepartmentName FROM Departments", connection);
                 DataTable departmentTable = new DataTable();
                 departmentAdapter.Fill(departmentTable);
@@ -46,8 +51,10 @@ namespace kursovaya
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            TrainerFIO = trainerFioTextBox.Text;
+            TrainerFIO = trainerFIOTextBox.Text;
             Department = departmentComboBox.SelectedValue.ToString();
+            Job = jobTextBox.Text;
+            Ranking = rankingTextBox.Text;
 
             if (ValidateForm())
             {
@@ -71,18 +78,30 @@ namespace kursovaya
             }
             if (string.IsNullOrEmpty(Department))
             {
-                MessageBox.Show("Отдел является обязательным.");
+                MessageBox.Show("Отделение является обязательным.");
+                return false;
+            }
+            if (string.IsNullOrEmpty(Job))
+            {
+                MessageBox.Show("Должность является обязательным полем.");
+                return false;
+            }
+            if (string.IsNullOrEmpty(Ranking))
+            {
+                MessageBox.Show("Рейтинг является обязательным полем.");
                 return false;
             }
             return true;
         }
 
-        
-
-        private Label trainerFioLabel;
-        private TextBox trainerFioTextBox;
+        private Label trainerFIOLabel;
+        private TextBox trainerFIOTextBox;
         private Label departmentLabel;
         private ComboBox departmentComboBox;
+        private Label jobLabel;
+        private TextBox jobTextBox;
+        private Label rankingLabel;
+        private TextBox rankingTextBox;
         private Button saveButton;
         private Button cancelButton;
     }

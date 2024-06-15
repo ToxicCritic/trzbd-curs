@@ -24,6 +24,7 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
             AthleteID = (int)standardPassingRow["AthleteID"];
             StandardID = (int)standardPassingRow["StandardID"];
             Result = standardPassingRow["Result"].ToString();

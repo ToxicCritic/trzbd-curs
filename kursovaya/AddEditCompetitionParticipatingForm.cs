@@ -21,6 +21,7 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
             CompetitionID = (int)competitionParticipatingRow["CompetitionID"];
             AthleteID = (int)competitionParticipatingRow["AthleteID"];
             Category = competitionParticipatingRow["Category"].ToString();

@@ -27,13 +27,14 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
             FIO = athleteRow["AthleteFIO"].ToString();
             Department = athleteRow["Department"].ToString();
             GroupID = (int)athleteRow["GroupID"];
             TrainerID = (int)athleteRow["TrainerID"];
             Ranking = athleteRow["Ranking"].ToString();
-            Heights = (int)athleteRow["Heights"];
-            Weights = (int)athleteRow["Weights"];
+            Heights = athleteRow["Heights"] != DBNull.Value ? (int)athleteRow["Heights"] : 0;
+            Weights = athleteRow["Weights"] != DBNull.Value ? (int)athleteRow["Weights"] : 0;
             EducationBegin = (DateTime)athleteRow["Education_begin"];
 
             fioTextBox.Text = FIO;

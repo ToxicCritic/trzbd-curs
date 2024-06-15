@@ -23,13 +23,14 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
+            TrophyName = trophyRow["TrophyName"].ToString();
             CompetitionID = (int)trophyRow["CompetitionID"];
             AthleteID = (int)trophyRow["AthleteID"];
-            TrophyName = trophyRow["TrophyName"].ToString();
 
+            trophyNameTextBox.Text = TrophyName;
             competitionComboBox.SelectedValue = CompetitionID;
             athleteComboBox.SelectedValue = AthleteID;
-            trophyNameTextBox.Text = TrophyName;
         }
 
         private void LoadComboBoxData()

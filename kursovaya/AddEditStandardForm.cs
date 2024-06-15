@@ -18,9 +18,11 @@ namespace kursovaya
         public AddEditStandardForm(DataRow standardRow)
         {
             InitializeComponent();
+
             Exercise = standardRow["Exercise"].ToString();
             ResultForWomen = standardRow["Result_for_women"].ToString();
             ResultForMen = standardRow["Result_for_men"].ToString();
+
             exerciseTextBox.Text = Exercise;
             resultForWomenTextBox.Text = ResultForWomen;
             resultForMenTextBox.Text = ResultForMen;

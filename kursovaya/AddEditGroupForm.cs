@@ -23,9 +23,10 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
             TrainerID = (int)groupRow["TrainerID"];
             Department = groupRow["Department"].ToString();
-            GroupID = (int)groupRow["GroupID"];
+
             trainerComboBox.SelectedValue = TrainerID;
             departmentComboBox.SelectedValue = Department;
         }

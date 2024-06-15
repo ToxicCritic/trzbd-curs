@@ -25,15 +25,16 @@ namespace kursovaya
         {
             InitializeComponent();
             LoadComboBoxData();
+
+            TrainerID = (int)trainingRow["TrainerID"];
             Department = trainingRow["Department"].ToString();
             GroupID = (int)trainingRow["GroupID"];
-            TrainerID = (int)trainingRow["TrainerID"];
             TrainingTime = (TimeSpan)trainingRow["TrainingTime"];
             TrainingDate = (DateTime)trainingRow["TrainingDate"];
 
+            trainerComboBox.SelectedValue = TrainerID;
             departmentComboBox.SelectedValue = Department;
             groupComboBox.SelectedValue = GroupID;
-            trainerComboBox.SelectedValue = TrainerID;
             trainingTimePicker.Value = DateTime.Today.Add(TrainingTime);
             trainingDatePicker.Value = TrainingDate;
         }

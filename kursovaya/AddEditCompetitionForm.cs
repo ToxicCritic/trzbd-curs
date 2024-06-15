@@ -18,6 +18,7 @@ namespace kursovaya
         public AddEditCompetitionForm(DataRow competitionRow)
         {
             InitializeComponent();
+
             CompetitionName = competitionRow["CompetitionName"].ToString();
             CompetitionPlace = competitionRow["CompetitionPlace"].ToString();
             CompetitionDate = (DateTime)competitionRow["CompetitionDate"];

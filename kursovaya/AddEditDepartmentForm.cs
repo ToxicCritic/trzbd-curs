@@ -24,8 +24,10 @@ namespace kursovaya
         public AddEditDepartmentForm(DataRow departmentRow)
         {
             InitializeComponent();
+
             DepartmentName = departmentRow["DepartmentName"].ToString();
             Building = departmentRow["Building"].ToString();
+
             departmentNameTextBox.Text = DepartmentName;
             buildingTextBox.Text = Building;
         }

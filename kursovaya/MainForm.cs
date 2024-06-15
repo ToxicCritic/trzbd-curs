@@ -85,23 +85,24 @@ namespace kursovaya
 
             this.Controls.Add(tabControl);
         }
-
-
-        private TabPage CreateTabPage(string tableName, string selectQuery, Action<DataTable> addHandler = null,
-                                      string foreignKeyField1 = null, string referenceTable1 = null, string referenceField1 = null, string displayMember1 = null, int? position1 = null,
-                                      string foreignKeyField2 = null, string referenceTable2 = null, string referenceField2 = null, string displayMember2 = null, int? position2 = null,
-                                      string foreignKeyField3 = null, string referenceTable3 = null, string referenceField3 = null, string displayMember3 = null, int? position3 = null)
+        // tabPage.BackColor = Color.Honeydew;
+        // toolStrip.BackColor = Color.GhostWhite;
+        // toolStrip.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+        private TabPage CreateTabPage(string tableName, string selectQuery, Action<DataTable, DataRow> addEditHandler = null,
+                              string foreignKeyField1 = null, string referenceTable1 = null, string referenceField1 = null, string displayMember1 = null, int? position1 = null,
+                              string foreignKeyField2 = null, string referenceTable2 = null, string referenceField2 = null, string displayMember2 = null, int? position2 = null,
+                              string foreignKeyField3 = null, string referenceTable3 = null, string referenceField3 = null, string displayMember3 = null, int? position3 = null)
         {
             TabPage tabPage = new TabPage(tableName);
-            tabPage.BackColor = Color.Honeydew;
+
             ToolStrip toolStrip = new ToolStrip();
-            toolStrip.BackColor = Color.GhostWhite;
-            toolStrip.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             ToolStripButton addButton = new ToolStripButton("Добавить");
             ToolStripButton deleteButton = new ToolStripButton("Удалить");
+            ToolStripButton updateButton = new ToolStripButton("Изменить");
 
             toolStrip.Items.Add(addButton);
             toolStrip.Items.Add(deleteButton);
+            toolStrip.Items.Add(updateButton);
 
             DataGridView dataGridView = new DataGridView
             {
@@ -113,34 +114,21 @@ namespace kursovaya
                 AutoGenerateColumns = false
             };
 
-            CustomizeDataGridView(dataGridView);
-
             SqlDataAdapter localAdapter = new SqlDataAdapter(selectQuery, sqlConnection);
             SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(localAdapter);
             DataTable localTable = new DataTable();
             localAdapter.Fill(localTable);
+
+            // Установка команд вручную
+            localAdapter.InsertCommand = sqlCommandBuilder.GetInsertCommand();
+            localAdapter.UpdateCommand = sqlCommandBuilder.GetUpdateCommand();
+            localAdapter.DeleteCommand = sqlCommandBuilder.GetDeleteCommand();
 
             BindingSource bindingSource = new BindingSource
             {
                 DataSource = localTable
             };
             dataGridView.DataSource = bindingSource;
-
-            // Обработчик события RowUpdated для получения новых идентификаторов
-            localAdapter.RowUpdated += (sender, args) =>
-            {
-                if (args.StatementType == StatementType.Insert)
-                {
-                    using (SqlCommand cmd = new SqlCommand("SELECT SCOPE_IDENTITY()", sqlConnection))
-                    {
-                        object newId = cmd.ExecuteScalar();
-                        if (newId != DBNull.Value)
-                        {
-                            args.Row["id"] = Convert.ToInt32(newId);
-                        }
-                    }
-                }
-            };
 
             // Добавление всех столбцов из DataTable в DataGridView, за исключением столбцов с выпадающими списками
             foreach (DataColumn column in localTable.Columns)
@@ -170,8 +158,7 @@ namespace kursovaya
                     DataSource = referenceData1,
                     ValueMember = referenceField1,
                     DisplayMember = displayMember1,
-                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
-                    FlatStyle = FlatStyle.Flat
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
                 };
                 if (position1.HasValue && position1.Value < dataGridView.Columns.Count)
                 {
@@ -194,8 +181,7 @@ namespace kursovaya
                     DataSource = referenceData2,
                     ValueMember = referenceField2,
                     DisplayMember = displayMember2,
-                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
-                    FlatStyle = FlatStyle.Flat
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
                 };
                 if (position2.HasValue && position2.Value < dataGridView.Columns.Count)
                 {
@@ -218,8 +204,7 @@ namespace kursovaya
                     DataSource = referenceData3,
                     ValueMember = referenceField3,
                     DisplayMember = displayMember3,
-                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
-                    FlatStyle = FlatStyle.Flat
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
                 };
                 if (position3.HasValue && position3.Value < dataGridView.Columns.Count)
                 {
@@ -247,18 +232,60 @@ namespace kursovaya
                     }
                 };
 
-                if (addHandler != null)
+                addButton.Click += (sender, e) => addEditHandler?.Invoke(localTable, null);
+                updateButton.Click += (sender, e) =>
                 {
-                    addButton.Click += (sender, e) => addHandler(localTable);
-                }
+                    if (dataGridView.SelectedRows.Count > 0)
+                    {
+                        DataRow row = ((DataRowView)dataGridView.SelectedRows[0].DataBoundItem).Row;
+                        addEditHandler?.Invoke(localTable, row);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Пожалуйста, выберите строку для редактирования.");
+                    }
+                };
 
                 deleteButton.Click += (sender, e) => DeleteRow(dataGridView, localTable, localAdapter);
             }
-            
+
             tabPage.Controls.Add(toolStrip);
             tabPage.Controls.Add(dataGridView);
             return tabPage;
         }
+
+
+
+
+        private DataTable GetReferenceData(string referenceTable, string referenceField, string displayField)
+        {
+            DataTable referenceTableData = new DataTable();
+            string query = $"SELECT {referenceField}, {displayField} FROM {referenceTable}";
+            using (SqlDataAdapter adapter = new SqlDataAdapter(query, sqlConnection))
+            {
+                adapter.Fill(referenceTableData);
+            }
+            return referenceTableData;
+        }
+
+        private void DeleteRow(DataGridView dataGridView, DataTable dataTable, SqlDataAdapter sqlDataAdapter)
+        {
+            foreach (DataGridViewRow row in dataGridView.SelectedRows)
+            {
+                if (!row.IsNewRow)
+                {
+                    dataGridView.Rows.Remove(row);
+                }
+            }
+            sqlDataAdapter.Update(dataTable);
+        }
+
+        private void UpdateRow(DataGridView dataGridView, SqlDataAdapter sqlDataAdapter)
+        {
+            // Здесь предполагается, что изменения уже были внесены в DataGridView и нужно просто обновить данные
+            sqlDataAdapter.Update((DataTable)dataGridView.DataSource);
+        }
+
 
         private DataGridView CustomizeDataGridView(DataGridView dataGridView)
         {
@@ -278,392 +305,387 @@ namespace kursovaya
             return dataGridView;
         }
 
-
-        private DataTable GetReferenceData(string referenceTable, string referenceField, string displayField)
+        private void AddEditAthlete(DataTable dataTable, DataRow dataRow)
         {
-            DataTable referenceTableData = new DataTable();
-            string query = $"SELECT {referenceField}, {displayField} FROM {referenceTable}";
-            using (SqlDataAdapter adapter = new SqlDataAdapter(query, sqlConnection))
-            {
-                adapter.Fill(referenceTableData);
-            }
-            return referenceTableData;
-        }
-
-
-        private void DeleteRow(DataGridView dataGridView, DataTable dataTable, SqlDataAdapter sqlDataAdapter)
-        {
-            foreach (DataGridViewRow row in dataGridView.SelectedRows)
-            {
-                if (!row.IsNewRow)
-                {
-                    dataGridView.Rows.Remove(row);
-                }
-            }
-            sqlDataAdapter.Update(dataTable);
-        }
-
-        private void AddEditAthlete(DataTable dataTable)
-        {
-            using (AddEditAthleteForm form = new AddEditAthleteForm())
+            using (AddEditAthleteForm form = new AddEditAthleteForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    DataRow newRow = dataTable.NewRow();
-                    newRow["AthleteFIO"] = form.FIO;
-                    newRow["Department"] = form.Department;
-                    newRow["GroupID"] = form.GroupID;
-                    newRow["TrainerID"] = form.TrainerID;
-                    newRow["Ranking"] = form.Ranking;
-                    newRow["Heights"] = form.Heights;
-                    newRow["Weights"] = form.Weights;
-                    newRow["Education_begin"] = form.EducationBegin;
-
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Athletes (AthleteFIO, Department, GroupID, TrainerID, Ranking, Heights, Weights, Education_begin) VALUES (@AthleteFIO, @Department, @GroupID, @TrainerID, @Ranking, @Heights, @Weights, @Education_begin); SELECT SCOPE_IDENTITY();";
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@AthleteFIO", form.FIO);
-                        cmd.Parameters.AddWithValue("@Department", form.Department);
-                        cmd.Parameters.AddWithValue("@GroupID", form.GroupID);
-                        cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
-                        cmd.Parameters.AddWithValue("@Ranking", form.Ranking);
-                        cmd.Parameters.AddWithValue("@Heights", form.Heights);
-                        cmd.Parameters.AddWithValue("@Weights", form.Weights);
-                        cmd.Parameters.AddWithValue("@Education_begin", form.EducationBegin);
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
+                    }
 
-                        // Выполняем запрос и получаем новый ID
-                        object newId = cmd.ExecuteScalar();
-                        if (newId != null && newId != DBNull.Value)
+                    dataRow["AthleteFIO"] = form.FIO;
+                    dataRow["Department"] = form.Department;
+                    dataRow["GroupID"] = form.GroupID;
+                    dataRow["TrainerID"] = form.TrainerID;
+                    dataRow["Ranking"] = form.Ranking;
+                    dataRow["Heights"] = form.Heights;
+                    dataRow["Weights"] = form.Weights;
+                    dataRow["Education_begin"] = form.EducationBegin;
+
+                    if (dataRow.RowState == DataRowState.Added)
+                    {
+                        string insertQuery = "INSERT INTO Athletes (AthleteFIO, Department, GroupID, TrainerID, Ranking, Heights, Weights, Education_begin) VALUES (@AthleteFIO, @Department, @GroupID, @TrainerID, @Ranking, @Heights, @Weights, @Education_begin); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
                         {
-                            newRow["id"] = Convert.ToInt32(newId);
+                            cmd.Parameters.AddWithValue("@AthleteFIO", form.FIO);
+                            cmd.Parameters.AddWithValue("@Department", form.Department);
+                            cmd.Parameters.AddWithValue("@GroupID", form.GroupID);
+                            cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
+                            cmd.Parameters.AddWithValue("@Ranking", form.Ranking);
+                            cmd.Parameters.AddWithValue("@Heights", form.Heights);
+                            cmd.Parameters.AddWithValue("@Weights", form.Weights);
+                            cmd.Parameters.AddWithValue("@Education_begin", form.EducationBegin);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
                         }
                     }
-
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
-
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Athletes";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, Program.connectionStringColledge))
-                    {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
-                    }
                 }
             }
         }
 
-        private void AddEditCompetition(DataTable dataTable)
+
+        private void AddEditCompetition(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditCompetitionForm form = new AddEditCompetitionForm())
+            using (AddEditCompetitionForm form = new AddEditCompetitionForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    DataRow newRow = dataTable.NewRow();
-                    newRow["CompetitionName"] = form.CompetitionName;
-                    newRow["CompetitionPlace"] = form.CompetitionPlace;
-                    newRow["CompetitionDate"] = form.CompetitionDate;
-
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Competitions (CompetitionName, CompetitionPlace, CompetitionDate) VALUES (@CompetitionName, @CompetitionPlace, @CompetitionDate); SELECT SCOPE_IDENTITY();";
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@CompetitionName", form.CompetitionName);
-                        cmd.Parameters.AddWithValue("@CompetitionPlace", form.CompetitionPlace);
-                        cmd.Parameters.AddWithValue("@CompetitionDate", form.CompetitionDate);
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
+                    }
 
-                        // Выполняем запрос и получаем новый ID
-                        object newId = cmd.ExecuteScalar();
-                        if (newId != null && newId != DBNull.Value)
+                    dataRow["CompetitionName"] = form.CompetitionName;
+                    dataRow["CompetitionPlace"] = form.CompetitionPlace;
+                    dataRow["CompetitionDate"] = form.CompetitionDate;
+
+                    if (dataRow.RowState == DataRowState.Added)
+                    {
+                        string insertQuery = "INSERT INTO Competitions (CompetitionName, CompetitionPlace, CompetitionDate) VALUES (@CompetitionName, @CompetitionPlace, @CompetitionDate); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
                         {
-                            newRow["id"] = Convert.ToInt32(newId);
+                            cmd.Parameters.AddWithValue("@CompetitionName", form.CompetitionName);
+                            cmd.Parameters.AddWithValue("@CompetitionPlace", form.CompetitionPlace);
+                            cmd.Parameters.AddWithValue("@CompetitionDate", form.CompetitionDate);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
                         }
                     }
-
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
-
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Competitions";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
-                    {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
-                    }
                 }
             }
         }
 
-        private void AddEditCompetitionParticipating(DataTable dataTable)
+        private void AddEditCompetitionParticipating(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditCompetitionParticipatingForm form = new AddEditCompetitionParticipatingForm())
+            using (AddEditCompetitionParticipatingForm form = new AddEditCompetitionParticipatingForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Competition_participating (CompetitionID, AthleteID, Category) VALUES (@CompetitionID, @AthleteID, @Category); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@CompetitionID", form.CompetitionID);
-                        cmd.Parameters.AddWithValue("@AthleteID", form.AthleteID);
-                        cmd.Parameters.AddWithValue("@Category", form.Category);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["CompetitionID"] = form.CompetitionID;
+                    dataRow["AthleteID"] = form.AthleteID;
+                    dataRow["Category"] = form.Category;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Competition_participating";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Competition_participating (CompetitionID, AthleteID, Category) VALUES (@CompetitionID, @AthleteID, @Category); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@CompetitionID", form.CompetitionID);
+                            cmd.Parameters.AddWithValue("@AthleteID", form.AthleteID);
+                            cmd.Parameters.AddWithValue("@Category", form.Category);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditDepartment(DataTable dataTable)
+
+        private void AddEditDepartment(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditDepartmentForm form = new AddEditDepartmentForm())
+            using (AddEditDepartmentForm form = new AddEditDepartmentForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Departments (DepartmentName, Building) VALUES (@DepartmentName, @Building);";
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@DepartmentName", form.DepartmentName);
-                        cmd.Parameters.AddWithValue("@Building", form.Building);
-                        cmd.ExecuteScalar();
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["DepartmentName"] = form.DepartmentName;
+                    dataRow["Building"] = form.Building;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Departments";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Departments (DepartmentName, Building) VALUES (@DepartmentName, @Building); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@DepartmentName", form.DepartmentName);
+                            cmd.Parameters.AddWithValue("@Building", form.Building);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["DepartmentName"] = newId.ToString();
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditGroup(DataTable dataTable)
+
+        private void AddEditGroup(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditGroupForm form = new AddEditGroupForm())
+            using (AddEditGroupForm form = new AddEditGroupForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Groups (TrainerID, Department) VALUES (@TrainerID, @Department); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
-                        cmd.Parameters.AddWithValue("@Department", form.Department);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
+                    dataRow["TrainerID"] = form.TrainerID;
+                    dataRow["Department"] = form.Department;
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
-
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Groups";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Groups (TrainerID, Department) VALUES (@TrainerID, @Department); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
+                            cmd.Parameters.AddWithValue("@Department", form.Department);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["GroupID"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditStandard(DataTable dataTable)
+        private void AddEditStandard(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditStandardForm form = new AddEditStandardForm())
+            using (AddEditStandardForm form = new AddEditStandardForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Standards (Exercise, Result_for_women, Result_for_men) VALUES (@Exercise, @Result_for_women, @Result_for_men); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@Exercise", form.Exercise);
-                        cmd.Parameters.AddWithValue("@Result_for_women", form.ResultForWomen);
-                        cmd.Parameters.AddWithValue("@Result_for_men", form.ResultForMen);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["Exercise"] = form.Exercise;
+                    dataRow["Result_for_women"] = form.ResultForWomen;
+                    dataRow["Result_for_men"] = form.ResultForMen;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Standards";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Standards (Exercise, Result_for_women, Result_for_men) VALUES (@Exercise, @Result_for_women, @Result_for_men); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@Exercise", form.Exercise);
+                            cmd.Parameters.AddWithValue("@Result_for_women", form.ResultForWomen);
+                            cmd.Parameters.AddWithValue("@Result_for_men", form.ResultForMen);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditStandardPassing(DataTable dataTable)
+
+        private void AddEditStandardPassing(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditStandardPassingForm form = new AddEditStandardPassingForm())
+            using (AddEditStandardPassingForm form = new AddEditStandardPassingForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Standards_passing (AthleteID, StandardID, Result, Date) VALUES (@AthleteID, @StandardID, @Result, @Date); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@AthleteID", form.AthleteID);
-                        cmd.Parameters.AddWithValue("@StandardID", form.StandardID);
-                        cmd.Parameters.AddWithValue("@Result", form.Result);
-                        cmd.Parameters.AddWithValue("@Date", form.Date);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["AthleteID"] = form.AthleteID;
+                    dataRow["StandardID"] = form.StandardID;
+                    dataRow["Result"] = form.Result;
+                    dataRow["Date"] = form.Date;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Standards_passing";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Standards_passing (AthleteID, StandardID, Result, Date) VALUES (@AthleteID, @StandardID, @Result, @Date); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@AthleteID", form.AthleteID);
+                            cmd.Parameters.AddWithValue("@StandardID", form.StandardID);
+                            cmd.Parameters.AddWithValue("@Result", form.Result);
+                            cmd.Parameters.AddWithValue("@Date", form.Date);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditTrainer(DataTable dataTable)
+
+        private void AddEditTrainer(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditTrainerForm form = new AddEditTrainerForm())
+            using (AddEditTrainerForm form = new AddEditTrainerForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Trainers (TrainerFIO, Department) VALUES (@TrainerFIO, @Department); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@TrainerFIO", form.TrainerFIO);
-                        cmd.Parameters.AddWithValue("@Department", form.Department);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["TrainerFIO"] = form.TrainerFIO;
+                    dataRow["Department"] = form.Department;
+                    dataRow["Job"] = form.Job;
+                    dataRow["Ranking"] = form.Ranking;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Trainers";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Trainers (TrainerFIO, Department, Job, Ranking) VALUES (@TrainerFIO, @Department, @Job, @Ranking); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@TrainerFIO", form.TrainerFIO);
+                            cmd.Parameters.AddWithValue("@Department", form.Department);
+                            cmd.Parameters.AddWithValue("@Job", form.Job);
+                            cmd.Parameters.AddWithValue("@Ranking", form.Ranking);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditTraining(DataTable dataTable)
+
+        private void AddEditTraining(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditTrainingForm form = new AddEditTrainingForm())
+            using (AddEditTrainingForm form = new AddEditTrainingForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Trainings (Department, GroupID, TrainerID, TrainingTime, TrainingDate) VALUES (@Department, @GroupID, @TrainerID, @TrainingTime, @TrainingDate); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@Department", form.Department);
-                        cmd.Parameters.AddWithValue("@GroupID", form.GroupID);
-                        cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
-                        cmd.Parameters.AddWithValue("@TrainingTime", form.TrainingTime);
-                        cmd.Parameters.AddWithValue("@TrainingDate", form.TrainingDate);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["Department"] = form.Department;
+                    dataRow["GroupID"] = form.GroupID;
+                    dataRow["TrainerID"] = form.TrainerID;
+                    dataRow["TrainingTime"] = form.TrainingTime;
+                    dataRow["TrainingDate"] = form.TrainingDate;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Trainings";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Trainings (Department, GroupID, TrainerID, TrainingTime, TrainingDate) VALUES (@Department, @GroupID, @TrainerID, @TrainingTime, @TrainingDate); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@Department", form.Department);
+                            cmd.Parameters.AddWithValue("@GroupID", form.GroupID);
+                            cmd.Parameters.AddWithValue("@TrainerID", form.TrainerID);
+                            cmd.Parameters.AddWithValue("@TrainingTime", form.TrainingTime);
+                            cmd.Parameters.AddWithValue("@TrainingDate", form.TrainingDate);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void AddEditTrophy(DataTable dataTable)
+
+        private void AddEditTrophy(DataTable dataTable, DataRow dataRow)
         {
-            using (AddEditTrophyForm form = new AddEditTrophyForm())
+            using (AddEditTrophyForm form = new AddEditTrophyForm(dataRow))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Сначала добавляем новую строку в базу данных
-                    string insertQuery = "INSERT INTO Trophies (CompetitionID, AthleteID, TrophyName) VALUES (@CompetitionID, @AthleteID, @TrophyName); SELECT SCOPE_IDENTITY();";
-                    int newId;
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                    if (dataRow == null)
                     {
-                        cmd.Parameters.AddWithValue("@CompetitionID", form.CompetitionID);
-                        cmd.Parameters.AddWithValue("@AthleteID", form.AthleteID);
-                        cmd.Parameters.AddWithValue("@TrophyName", form.TrophyName);
-
-                        // Выполняем запрос и получаем новый ID
-                        newId = Convert.ToInt32(cmd.ExecuteScalar());
+                        dataRow = dataTable.NewRow();
+                        dataTable.Rows.Add(dataRow);
                     }
 
-                    // Перезагружаем таблицу, чтобы убедиться, что все данные обновлены
-                    dataTable.Clear();
+                    dataRow["TrophyName"] = form.TrophyName;
+                    dataRow["CompetitionID"] = form.CompetitionID;
+                    dataRow["AthleteID"] = form.AthleteID;
 
-                    // Создаем и настраиваем новый SqlDataAdapter для обновления DataTable
-                    string selectQuery = "SELECT * FROM Trophies";
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(selectQuery, sqlConnection))
+                    if (dataRow.RowState == DataRowState.Added)
                     {
-                        SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
-                        adapter.Fill(dataTable);
+                        string insertQuery = "INSERT INTO Trophies (TrophyName, CompetitionID, AthleteID) VALUES (@TrophyName, @CompetitionID, @AthleteID); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, sqlConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@TrophyName", form.TrophyName);
+                            cmd.Parameters.AddWithValue("@CompetitionID", form.CompetitionID);
+                            cmd.Parameters.AddWithValue("@AthleteID", form.AthleteID);
+
+                            object newId = cmd.ExecuteScalar();
+                            if (newId != null && newId != DBNull.Value)
+                            {
+                                dataRow["id"] = Convert.ToInt32(newId);
+                            }
+                        }
                     }
                 }
             }
         }
+
 
 
         private TabPage CreateUsersTabPage()
@@ -869,6 +891,181 @@ namespace kursovaya
 
             return tabPage;
         }
+
+        private SqlCommand GetInsertCommand(string tableName, SqlConnection connection)
+        {
+            switch (tableName)
+            {
+                case "Athletes":
+                    return new SqlCommand("INSERT INTO Athletes (AthleteFIO, Department, GroupID, TrainerID, Ranking, Heights, Weights, Education_begin) VALUES (@AthleteFIO, @Department, @GroupID, @TrainerID, @Ranking, @Heights, @Weights, @Education_begin); SELECT SCOPE_IDENTITY();", connection);
+                case "Competitions":
+                    return new SqlCommand("INSERT INTO Competitions (CompetitionName, CompetitionPlace, CompetitionDate) VALUES (@CompetitionName, @CompetitionPlace, @CompetitionDate); SELECT SCOPE_IDENTITY();", connection);
+                case "Competition Participating":
+                    return new SqlCommand("INSERT INTO Competition_participating (CompetitionID, AthleteID, Category) VALUES (@CompetitionID, @AthleteID, @Category); SELECT SCOPE_IDENTITY();", connection);
+                case "Departments":
+                    return new SqlCommand("INSERT INTO Departments (DepartmentName, Building) VALUES (@DepartmentName, @Building); SELECT SCOPE_IDENTITY();", connection);
+                case "Groups":
+                    return new SqlCommand("INSERT INTO Groups (TrainerID, Department) VALUES (@TrainerID, @Department); SELECT SCOPE_IDENTITY();", connection);
+                case "Standards":
+                    return new SqlCommand("INSERT INTO Standards (Exercise, Result_for_women, Result_for_men) VALUES (@Exercise, @Result_for_women, @Result_for_men); SELECT SCOPE_IDENTITY();", connection);
+                case "Standards Passing":
+                    return new SqlCommand("INSERT INTO Standards_passing (AthleteID, StandardID, Result, Date) VALUES (@AthleteID, @StandardID, @Result, @Date); SELECT SCOPE_IDENTITY();", connection);
+                case "Trainers":
+                    return new SqlCommand("INSERT INTO Trainers (TrainerFIO, Department, Job, Ranking) VALUES (@TrainerFIO, @Department, @Job, @Ranking); SELECT SCOPE_IDENTITY();", connection);
+                case "Trainings":
+                    return new SqlCommand("INSERT INTO Trainings (Department, GroupID, TrainerID, TrainingTime, TrainingDate) VALUES (@Department, @GroupID, @TrainerID, @TrainingTime, @TrainingDate); SELECT SCOPE_IDENTITY();", connection);
+                case "Trophies":
+                    return new SqlCommand("INSERT INTO Trophies (TrophyName, CompetitionID, AthleteID) VALUES (@TrophyName, @CompetitionID, @AthleteID); SELECT SCOPE_IDENTITY();", connection);
+                case "Users":
+                    return new SqlCommand("INSERT INTO Users (Login, PasswordHash, Status) VALUES (@Login, @PasswordHash, @Status); SELECT SCOPE_IDENTITY();", connection);
+                default:
+                    throw new ArgumentException("Unknown table name");
+            }
+        }
+
+        private SqlCommand GetUpdateCommand(string tableName, SqlConnection connection)
+        {
+            switch (tableName)
+            {
+                case "Athletes":
+                    return new SqlCommand("UPDATE Athletes SET AthleteFIO = @AthleteFIO, Department = @Department, GroupID = @GroupID, TrainerID = @TrainerID, Ranking = @Ranking, Heights = @Heights, Weights = @Weights, Education_begin = @Education_begin WHERE id = @id", connection);
+                case "Competitions":
+                    return new SqlCommand("UPDATE Competitions SET CompetitionName = @CompetitionName, CompetitionPlace = @CompetitionPlace, CompetitionDate = @CompetitionDate WHERE id = @id", connection);
+                case "Competition Participating":
+                    return new SqlCommand("UPDATE Competition_participating SET CompetitionID = @CompetitionID, AthleteID = @AthleteID, Category = @Category WHERE id = @id", connection);
+                case "Departments":
+                    return new SqlCommand("UPDATE Departments SET DepartmentName = @DepartmentName, Building = @Building WHERE DepartmentName = @DepartmentName", connection);
+                case "Groups":
+                    return new SqlCommand("UPDATE Groups SET TrainerID = @TrainerID, Department = @Department WHERE GroupID = @GroupID", connection);
+                case "Standards":
+                    return new SqlCommand("UPDATE Standards SET Exercise = @Exercise, Result_for_women = @Result_for_women, Result_for_men = @Result_for_men WHERE id = @id", connection);
+                case "Standards Passing":
+                    return new SqlCommand("UPDATE Standards_passing SET AthleteID = @AthleteID, StandardID = @StandardID, Result = @Result, Date = @Date WHERE id = @id", connection);
+                case "Trainers":
+                    return new SqlCommand("UPDATE Trainers SET TrainerFIO = @TrainerFIO, Department = @Department, Job = @Job, Ranking = @Ranking WHERE id = @id", connection);
+                case "Trainings":
+                    return new SqlCommand("UPDATE Trainings SET Department = @Department, GroupID = @GroupID, TrainerID = @TrainerID, TrainingTime = @TrainingTime, TrainingDate = @TrainingDate WHERE id = @id", connection);
+                case "Trophies":
+                    return new SqlCommand("UPDATE Trophies SET TrophyName = @TrophyName, CompetitionID = @CompetitionID, AthleteID = @AthleteID WHERE id = @id", connection);
+                case "Users":
+                    return new SqlCommand("UPDATE Users SET Login = @Login, PasswordHash = @PasswordHash, Status = @Status WHERE id = @id", connection);
+                default:
+                    throw new ArgumentException("Unknown table name");
+            }
+        }
+
+        private SqlCommand GetDeleteCommand(string tableName, SqlConnection connection)
+        {
+            switch (tableName)
+            {
+                case "Athletes":
+                    return new SqlCommand("DELETE FROM Athletes WHERE id = @id", connection);
+                case "Competitions":
+                    return new SqlCommand("DELETE FROM Competitions WHERE id = @id", connection);
+                case "Competition Participating":
+                    return new SqlCommand("DELETE FROM Competition_participating WHERE id = @id", connection);
+                case "Departments":
+                    return new SqlCommand("DELETE FROM Departments WHERE DepartmentName = @DepartmentName", connection);
+                case "Groups":
+                    return new SqlCommand("DELETE FROM Groups WHERE GroupID = @GroupID", connection);
+                case "Standards":
+                    return new SqlCommand("DELETE FROM Standards WHERE id = @id", connection);
+                case "Standards Passing":
+                    return new SqlCommand("DELETE FROM Standards_passing WHERE id = @id", connection);
+                case "Trainers":
+                    return new SqlCommand("DELETE FROM Trainers WHERE id = @id", connection);
+                case "Trainings":
+                    return new SqlCommand("DELETE FROM Trainings WHERE id = @id", connection);
+                case "Trophies":
+                    return new SqlCommand("DELETE FROM Trophies WHERE id = @id", connection);
+                case "Users":
+                    return new SqlCommand("DELETE FROM Users WHERE id = @id", connection);
+                default:
+                    throw new ArgumentException("Unknown table name");
+            }
+        }
+
+        private void AddParametersToCommand(SqlCommand command)
+        {
+            switch (command.CommandText)
+            {
+                case string s when s.Contains("Athletes"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@AthleteFIO", SqlDbType.NVarChar, 50, "AthleteFIO"));
+                    command.Parameters.Add(new SqlParameter("@Department", SqlDbType.NVarChar, 20, "Department"));
+                    command.Parameters.Add(new SqlParameter("@GroupID", SqlDbType.Int, 4, "GroupID"));
+                    command.Parameters.Add(new SqlParameter("@TrainerID", SqlDbType.Int, 4, "TrainerID"));
+                    command.Parameters.Add(new SqlParameter("@Ranking", SqlDbType.NVarChar, 30, "Ranking"));
+                    command.Parameters.Add(new SqlParameter("@Heights", SqlDbType.Int, 4, "Heights"));
+                    command.Parameters.Add(new SqlParameter("@Weights", SqlDbType.Int, 4, "Weights"));
+                    command.Parameters.Add(new SqlParameter("@Education_begin", SqlDbType.Date, 3, "Education_begin"));
+                    break;
+                case string s when s.Contains("Competitions"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@CompetitionName", SqlDbType.NVarChar, 50, "CompetitionName"));
+                    command.Parameters.Add(new SqlParameter("@CompetitionPlace", SqlDbType.NVarChar, 30, "CompetitionPlace"));
+                    command.Parameters.Add(new SqlParameter("@CompetitionDate", SqlDbType.Date, 3, "CompetitionDate"));
+                    break;
+                case string s when s.Contains("Competition_participating"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@CompetitionID", SqlDbType.Int, 4, "CompetitionID"));
+                    command.Parameters.Add(new SqlParameter("@AthleteID", SqlDbType.Int, 4, "AthleteID"));
+                    command.Parameters.Add(new SqlParameter("@Category", SqlDbType.NVarChar, 255, "Category"));
+                    break;
+                case string s when s.Contains("Departments"):
+                    command.Parameters.Add(new SqlParameter("@DepartmentName", SqlDbType.NVarChar, 20, "DepartmentName"));
+                    command.Parameters.Add(new SqlParameter("@Building", SqlDbType.NVarChar, 20, "Building"));
+                    break;
+                case string s when s.Contains("Groups"):
+                    command.Parameters.Add(new SqlParameter("@GroupID", SqlDbType.Int, 4, "GroupID"));
+                    command.Parameters.Add(new SqlParameter("@TrainerID", SqlDbType.Int, 4, "TrainerID"));
+                    command.Parameters.Add(new SqlParameter("@Department", SqlDbType.NVarChar, 20, "Department"));
+                    break;
+                case string s when s.Contains("Standards"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@Exercise", SqlDbType.NVarChar, 30, "Exercise"));
+                    command.Parameters.Add(new SqlParameter("@Result_for_women", SqlDbType.NVarChar, 30, "Result_for_women"));
+                    command.Parameters.Add(new SqlParameter("@Result_for_men", SqlDbType.NVarChar, 30, "Result_for_men"));
+                    break;
+                case string s when s.Contains("Standards_passing"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@AthleteID", SqlDbType.Int, 4, "AthleteID"));
+                    command.Parameters.Add(new SqlParameter("@StandardID", SqlDbType.Int, 4, "StandardID"));
+                    command.Parameters.Add(new SqlParameter("@Result", SqlDbType.NVarChar, 20, "Result"));
+                    command.Parameters.Add(new SqlParameter("@Date", SqlDbType.DateTime, 3, "Date"));
+                    break;
+                case string s when s.Contains("Trainers"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@TrainerFIO", SqlDbType.NVarChar, 50, "TrainerFIO"));
+                    command.Parameters.Add(new SqlParameter("@Department", SqlDbType.NVarChar, 20, "Department"));
+                    command.Parameters.Add(new SqlParameter("@Job", SqlDbType.NVarChar, 30, "Job"));
+                    command.Parameters.Add(new SqlParameter("@Ranking", SqlDbType.NVarChar, 30, "Ranking"));
+                    break;
+                case string s when s.Contains("Trainings"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@Department", SqlDbType.NVarChar, 20, "Department"));
+                    command.Parameters.Add(new SqlParameter("@GroupID", SqlDbType.Int, 4, "GroupID"));
+                    command.Parameters.Add(new SqlParameter("@TrainerID", SqlDbType.Int, 4, "TrainerID"));
+                    command.Parameters.Add(new SqlParameter("@TrainingTime", SqlDbType.Time, 7, "TrainingTime"));
+                    command.Parameters.Add(new SqlParameter("@TrainingDate", SqlDbType.Date, 3, "TrainingDate"));
+                    break;
+                case string s when s.Contains("Trophies"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@TrophyName", SqlDbType.NVarChar, 30, "TrophyName"));
+                    command.Parameters.Add(new SqlParameter("@CompetitionID", SqlDbType.Int, 4, "CompetitionID"));
+                    command.Parameters.Add(new SqlParameter("@AthleteID", SqlDbType.Int, 4, "AthleteID"));
+                    break;
+                case string s when s.Contains("Users"):
+                    command.Parameters.Add(new SqlParameter("@id", SqlDbType.Int, 4, "id"));
+                    command.Parameters.Add(new SqlParameter("@Login", SqlDbType.NVarChar, 50, "Login"));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", SqlDbType.NVarChar, 256, "PasswordHash"));
+                    command.Parameters.Add(new SqlParameter("@Status", SqlDbType.NVarChar, 10, "Status"));
+                    break;
+                default:
+                    throw new ArgumentException("Unknown command text");
+            }
+        }
+
 
         private void ExecuteSelectedQuery(ComboBox queryComboBox, DataGridView resultsDataGridView)
         {
