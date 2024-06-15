@@ -85,12 +85,13 @@ namespace kursovaya
             // titleLabel
             // 
             this.titleLabel.AutoSize = true;
-            this.titleLabel.Font = new System.Drawing.Font("Bahnschrift", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.titleLabel.Location = new System.Drawing.Point(56, 9);
+            this.titleLabel.Font = new System.Drawing.Font("Bahnschrift", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.titleLabel.Location = new System.Drawing.Point(46, 2);
             this.titleLabel.Name = "titleLabel";
-            this.titleLabel.Size = new System.Drawing.Size(176, 25);
+            this.titleLabel.Size = new System.Drawing.Size(199, 38);
             this.titleLabel.TabIndex = 5;
-            this.titleLabel.Text = "Вход в БД СШОР";
+            this.titleLabel.Text = "Вход в информационную \r\nсистему СШОР";
+            this.titleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // LoginForm
             // 

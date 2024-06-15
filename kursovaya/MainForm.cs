@@ -24,8 +24,8 @@ namespace kursovaya
             { "Competition Participating", "Участие в соревнованиях" },
             { "Departments", "Отделы" },
             { "Groups", "Группы" },
-            { "Standards", "Стандарты" },
-            { "Standards Passing", "Прохождение стандартов" },
+            { "Standards", "Нормативы" },
+            { "Standards Passing", "Сдача нормативов" },
             { "Trainers", "Тренеры" },
             { "Trainings", "Тренировки" },
             { "Trophies", "Трофеи" },
@@ -111,9 +111,18 @@ namespace kursovaya
             TabPage tabPage = new TabPage(tabPageTitle);
 
             ToolStrip toolStrip = new ToolStrip();
+
             ToolStripButton addButton = new ToolStripButton("Добавить");
             ToolStripButton deleteButton = new ToolStripButton("Удалить");
             ToolStripButton updateButton = new ToolStripButton("Изменить");
+            
+            if (!LoginForm.IsAdmin)
+            {
+                addButton.Enabled = false;
+                deleteButton.Enabled = false;
+                updateButton.Enabled = false;
+            }
+
             tabPage.BackColor = Color.Honeydew;
             toolStrip.BackColor = Color.GhostWhite;
             toolStrip.Font = new System.Drawing.Font("Bahnschrift", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
