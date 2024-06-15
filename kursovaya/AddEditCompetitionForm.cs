@@ -15,17 +15,18 @@ namespace kursovaya
             InitializeComponent();
         }
 
-        public AddEditCompetitionForm(DataRow competitionRow)
+        public AddEditCompetitionForm(DataRow competitionRow) : this()
         {
-            InitializeComponent();
+            if (competitionRow != null)
+            {
+                CompetitionName = competitionRow["CompetitionName"].ToString();
+                CompetitionPlace = competitionRow["CompetitionPlace"].ToString();
+                CompetitionDate = (DateTime)competitionRow["CompetitionDate"];
 
-            CompetitionName = competitionRow["CompetitionName"].ToString();
-            CompetitionPlace = competitionRow["CompetitionPlace"].ToString();
-            CompetitionDate = (DateTime)competitionRow["CompetitionDate"];
-
-            competitionNameTextBox.Text = CompetitionName;
-            competitionPlaceTextBox.Text = CompetitionPlace;
-            competitionDatePicker.Value = CompetitionDate;
+                competitionNameTextBox.Text = CompetitionName;
+                competitionPlaceTextBox.Text = CompetitionPlace;
+                competitionDatePicker.Value = CompetitionDate;
+            }
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -70,7 +71,5 @@ namespace kursovaya
         private DateTimePicker competitionDatePicker;
         private Button saveButton;
         private Button cancelButton;
-
-
     }
 }

@@ -18,20 +18,20 @@ namespace kursovaya
             LoadComboBoxData();
         }
 
-        public AddEditTrainerForm(DataRow trainerRow)
+        public AddEditTrainerForm(DataRow trainerRow) : this()
         {
-            InitializeComponent();
-            LoadComboBoxData();
+            if (trainerRow != null)
+            {
+                TrainerFIO = trainerRow["TrainerFIO"].ToString();
+                Department = trainerRow["Department"].ToString();
+                Job = trainerRow["Job"].ToString();
+                Ranking = trainerRow["Ranking"].ToString();
 
-            TrainerFIO = trainerRow["TrainerFIO"].ToString();
-            Department = trainerRow["Department"].ToString();
-            Job = trainerRow["Job"].ToString();
-            Ranking = trainerRow["Ranking"].ToString();
-
-            trainerFIOTextBox.Text = TrainerFIO;
-            departmentComboBox.SelectedValue = Department;
-            jobTextBox.Text = Job;
-            rankingTextBox.Text = Ranking;
+                trainerFIOTextBox.Text = TrainerFIO;
+                departmentComboBox.SelectedValue = Department;
+                jobTextBox.Text = Job;
+                rankingTextBox.Text = Ranking;
+            }
         }
 
         private void LoadComboBoxData()
@@ -78,17 +78,12 @@ namespace kursovaya
             }
             if (string.IsNullOrEmpty(Department))
             {
-                MessageBox.Show("Отделение является обязательным.");
+                MessageBox.Show("Отдел является обязательным.");
                 return false;
             }
             if (string.IsNullOrEmpty(Job))
             {
-                MessageBox.Show("Должность является обязательным полем.");
-                return false;
-            }
-            if (string.IsNullOrEmpty(Ranking))
-            {
-                MessageBox.Show("Рейтинг является обязательным полем.");
+                MessageBox.Show("Должность является обязательной.");
                 return false;
             }
             return true;

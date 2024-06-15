@@ -7,11 +7,9 @@ namespace kursovaya
 {
     public partial class AddEditTrophyForm : Form
     {
-        private readonly string connectionString = @"Server=ADCLG1;Database=Лифляндский_СпортШколаОлимпРезерва;Integrated Security=true;";
-
+        public string TrophyName { get; private set; }
         public int CompetitionID { get; private set; }
         public int AthleteID { get; private set; }
-        public string TrophyName { get; private set; }
 
         public AddEditTrophyForm()
         {
@@ -19,27 +17,26 @@ namespace kursovaya
             LoadComboBoxData();
         }
 
-        public AddEditTrophyForm(DataRow trophyRow)
+        public AddEditTrophyForm(DataRow trophyRow) : this()
         {
-            InitializeComponent();
-            LoadComboBoxData();
+            if (trophyRow != null)
+            {
+                TrophyName = trophyRow["TrophyName"].ToString();
+                CompetitionID = (int)trophyRow["CompetitionID"];
+                AthleteID = (int)trophyRow["AthleteID"];
 
-            TrophyName = trophyRow["TrophyName"].ToString();
-            CompetitionID = (int)trophyRow["CompetitionID"];
-            AthleteID = (int)trophyRow["AthleteID"];
-
-            trophyNameTextBox.Text = TrophyName;
-            competitionComboBox.SelectedValue = CompetitionID;
-            athleteComboBox.SelectedValue = AthleteID;
+                trophyNameTextBox.Text = TrophyName;
+                competitionComboBox.SelectedValue = CompetitionID;
+                athleteComboBox.SelectedValue = AthleteID;
+            }
         }
 
         private void LoadComboBoxData()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
             {
                 connection.Open();
 
-                // Загрузка данных для соревнований
                 SqlDataAdapter competitionAdapter = new SqlDataAdapter("SELECT id, CompetitionName FROM Competitions", connection);
                 DataTable competitionTable = new DataTable();
                 competitionAdapter.Fill(competitionTable);
@@ -47,7 +44,6 @@ namespace kursovaya
                 competitionComboBox.DisplayMember = "CompetitionName";
                 competitionComboBox.ValueMember = "id";
 
-                // Загрузка данных для атлетов
                 SqlDataAdapter athleteAdapter = new SqlDataAdapter("SELECT id, AthleteFIO FROM Athletes", connection);
                 DataTable athleteTable = new DataTable();
                 athleteAdapter.Fill(athleteTable);
@@ -59,9 +55,9 @@ namespace kursovaya
 
         private void saveButton_Click(object sender, EventArgs e)
         {
+            TrophyName = trophyNameTextBox.Text;
             CompetitionID = (int)competitionComboBox.SelectedValue;
             AthleteID = (int)athleteComboBox.SelectedValue;
-            TrophyName = trophyNameTextBox.Text;
 
             if (ValidateForm())
             {
@@ -78,6 +74,11 @@ namespace kursovaya
 
         private bool ValidateForm()
         {
+            if (string.IsNullOrEmpty(TrophyName))
+            {
+                MessageBox.Show("Название трофея является обязательным.");
+                return false;
+            }
             if (CompetitionID <= 0)
             {
                 MessageBox.Show("Пожалуйста, выберите соревнование.");
@@ -88,22 +89,15 @@ namespace kursovaya
                 MessageBox.Show("Пожалуйста, выберите атлета.");
                 return false;
             }
-            if (string.IsNullOrEmpty(TrophyName))
-            {
-                MessageBox.Show("Название трофея является обязательным.");
-                return false;
-            }
             return true;
         }
 
-        
-
+        private Label trophyNameLabel;
+        private TextBox trophyNameTextBox;
         private Label competitionLabel;
         private ComboBox competitionComboBox;
         private Label athleteLabel;
         private ComboBox athleteComboBox;
-        private Label trophyNameLabel;
-        private TextBox trophyNameTextBox;
         private Button saveButton;
         private Button cancelButton;
     }

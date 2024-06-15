@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
 
 namespace kursovaya
 {
@@ -21,15 +14,16 @@ namespace kursovaya
             InitializeComponent();
         }
 
-        public AddEditDepartmentForm(DataRow departmentRow)
+        public AddEditDepartmentForm(DataRow departmentRow) : this()
         {
-            InitializeComponent();
+            if (departmentRow != null)
+            {
+                DepartmentName = departmentRow["DepartmentName"].ToString();
+                Building = departmentRow["Building"].ToString();
 
-            DepartmentName = departmentRow["DepartmentName"].ToString();
-            Building = departmentRow["Building"].ToString();
-
-            departmentNameTextBox.Text = DepartmentName;
-            buildingTextBox.Text = Building;
+                departmentNameTextBox.Text = DepartmentName;
+                buildingTextBox.Text = Building;
+            }
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -59,12 +53,11 @@ namespace kursovaya
             }
             if (string.IsNullOrEmpty(Building))
             {
-                MessageBox.Show("Название здания является обязательным.");
+                MessageBox.Show("Здание является обязательным.");
                 return false;
             }
             return true;
         }
-
 
         private Label departmentNameLabel;
         private TextBox departmentNameTextBox;
@@ -74,4 +67,3 @@ namespace kursovaya
         private Button cancelButton;
     }
 }
-

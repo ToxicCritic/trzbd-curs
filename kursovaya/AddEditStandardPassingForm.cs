@@ -7,8 +7,6 @@ namespace kursovaya
 {
     public partial class AddEditStandardPassingForm : Form
     {
-        private readonly string connectionString = @"Server=ADCLG1;Database=Лифляндский_СпортШколаОлимпРезерва;Integrated Security=true;";
-
         public int AthleteID { get; private set; }
         public int StandardID { get; private set; }
         public string Result { get; private set; }
@@ -20,29 +18,28 @@ namespace kursovaya
             LoadComboBoxData();
         }
 
-        public AddEditStandardPassingForm(DataRow standardPassingRow)
+        public AddEditStandardPassingForm(DataRow standardPassingRow) : this()
         {
-            InitializeComponent();
-            LoadComboBoxData();
+            if (standardPassingRow != null)
+            {
+                AthleteID = (int)standardPassingRow["AthleteID"];
+                StandardID = (int)standardPassingRow["StandardID"];
+                Result = standardPassingRow["Result"].ToString();
+                Date = (DateTime)standardPassingRow["Date"];
 
-            AthleteID = (int)standardPassingRow["AthleteID"];
-            StandardID = (int)standardPassingRow["StandardID"];
-            Result = standardPassingRow["Result"].ToString();
-            Date = (DateTime)standardPassingRow["Date"];
-
-            athleteComboBox.SelectedValue = AthleteID;
-            standardComboBox.SelectedValue = StandardID;
-            resultTextBox.Text = Result;
-            datePicker.Value = Date;
+                athleteComboBox.SelectedValue = AthleteID;
+                standardComboBox.SelectedValue = StandardID;
+                resultTextBox.Text = Result;
+                datePicker.Value = Date;
+            }
         }
 
         private void LoadComboBoxData()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(Program.connectionStringColledge))
             {
                 connection.Open();
 
-                // Загрузка данных для атлетов
                 SqlDataAdapter athleteAdapter = new SqlDataAdapter("SELECT id, AthleteFIO FROM Athletes", connection);
                 DataTable athleteTable = new DataTable();
                 athleteAdapter.Fill(athleteTable);
@@ -50,7 +47,6 @@ namespace kursovaya
                 athleteComboBox.DisplayMember = "AthleteFIO";
                 athleteComboBox.ValueMember = "id";
 
-                // Загрузка данных для стандартов
                 SqlDataAdapter standardAdapter = new SqlDataAdapter("SELECT id, Exercise FROM Standards", connection);
                 DataTable standardTable = new DataTable();
                 standardAdapter.Fill(standardTable);
@@ -65,7 +61,7 @@ namespace kursovaya
             AthleteID = (int)athleteComboBox.SelectedValue;
             StandardID = (int)standardComboBox.SelectedValue;
             Result = resultTextBox.Text;
-            Date = datePicker.Value.Date;
+            Date = datePicker.Value;
 
             if (ValidateForm())
             {
@@ -94,13 +90,11 @@ namespace kursovaya
             }
             if (string.IsNullOrEmpty(Result))
             {
-                MessageBox.Show("Результат является обязательным.");
+                MessageBox.Show("Результат является обязательным полем.");
                 return false;
             }
             return true;
         }
-
-        
 
         private Label athleteLabel;
         private ComboBox athleteComboBox;

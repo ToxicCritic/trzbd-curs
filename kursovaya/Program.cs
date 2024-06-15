@@ -8,10 +8,9 @@ namespace kursovaya
 {
     static class Program
     {
-        public static string connectionStringHome = "Server=192.168.0.101;Database='SportsSchool';" +
-            "User Id='sa';Password='yourStrong(!)Password';TrustServerCertificate=True;";
-        public static string connectionStringColledge = "Data Source=ADCLG1; Initial Catalog=Лифляндский_СпортШколаОлимпРезерва; " +
+        public static string connectionStringHome = "Data Source=ADCLG1; Initial Catalog=Лифляндский_СпортШколаОлимпРезерва; " +
             "Integrated Security=True; Trusted_Connection=True; TrustServerCertificate=true;";
+        public static string connectionStringColledge = "Server=localhost\\SQLEXPRESS01;Database='SHOR';Trusted_Connection=True;";
         /// <summary>
         /// Главная точка входа для приложения.
         /// </summary>

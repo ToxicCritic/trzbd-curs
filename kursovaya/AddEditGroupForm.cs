@@ -11,7 +11,6 @@ namespace kursovaya
 
         public int TrainerID { get; private set; }
         public string Department { get; private set; }
-        public int GroupID { get; private set; }
 
         public AddEditGroupForm()
         {
@@ -19,16 +18,16 @@ namespace kursovaya
             LoadComboBoxData();
         }
 
-        public AddEditGroupForm(DataRow groupRow)
+        public AddEditGroupForm(DataRow groupRow) : this()
         {
-            InitializeComponent();
-            LoadComboBoxData();
+            if (groupRow != null)
+            {
+                TrainerID = (int)groupRow["TrainerID"];
+                Department = groupRow["Department"].ToString();
 
-            TrainerID = (int)groupRow["TrainerID"];
-            Department = groupRow["Department"].ToString();
-
-            trainerComboBox.SelectedValue = TrainerID;
-            departmentComboBox.SelectedValue = Department;
+                trainerComboBox.SelectedValue = TrainerID;
+                departmentComboBox.SelectedValue = Department;
+            }
         }
 
         private void LoadComboBoxData()
@@ -37,7 +36,6 @@ namespace kursovaya
             {
                 connection.Open();
 
-                // Загрузка данных для тренеров
                 SqlDataAdapter trainerAdapter = new SqlDataAdapter("SELECT id, TrainerFIO FROM Trainers", connection);
                 DataTable trainerTable = new DataTable();
                 trainerAdapter.Fill(trainerTable);
@@ -45,7 +43,6 @@ namespace kursovaya
                 trainerComboBox.DisplayMember = "TrainerFIO";
                 trainerComboBox.ValueMember = "id";
 
-                // Загрузка данных для отделов
                 SqlDataAdapter departmentAdapter = new SqlDataAdapter("SELECT DepartmentName FROM Departments", connection);
                 DataTable departmentTable = new DataTable();
                 departmentAdapter.Fill(departmentTable);
@@ -59,6 +56,7 @@ namespace kursovaya
         {
             TrainerID = (int)trainerComboBox.SelectedValue;
             Department = departmentComboBox.SelectedValue.ToString();
+
             if (ValidateForm())
             {
                 this.DialogResult = DialogResult.OK;
@@ -74,7 +72,7 @@ namespace kursovaya
 
         private bool ValidateForm()
         {
-            if (TrainerID <= 0)
+            if (TrainerID == 0)
             {
                 MessageBox.Show("Пожалуйста, выберите тренера.");
                 return false;
@@ -86,8 +84,6 @@ namespace kursovaya
             }
             return true;
         }
-
-
 
         private Label trainerLabel;
         private ComboBox trainerComboBox;

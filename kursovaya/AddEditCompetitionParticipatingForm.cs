@@ -17,18 +17,18 @@ namespace kursovaya
             LoadComboBoxData();
         }
 
-        public AddEditCompetitionParticipatingForm(DataRow competitionParticipatingRow)
+        public AddEditCompetitionParticipatingForm(DataRow competitionParticipatingRow) : this()
         {
-            InitializeComponent();
-            LoadComboBoxData();
+            if (competitionParticipatingRow != null)
+            {
+                CompetitionID = (int)competitionParticipatingRow["CompetitionID"];
+                AthleteID = (int)competitionParticipatingRow["AthleteID"];
+                Category = competitionParticipatingRow["Category"].ToString();
 
-            CompetitionID = (int)competitionParticipatingRow["CompetitionID"];
-            AthleteID = (int)competitionParticipatingRow["AthleteID"];
-            Category = competitionParticipatingRow["Category"].ToString();
-
-            competitionComboBox.SelectedValue = CompetitionID;
-            athleteComboBox.SelectedValue = AthleteID;
-            categoryTextBox.Text = Category;
+                competitionComboBox.SelectedValue = CompetitionID;
+                athleteComboBox.SelectedValue = AthleteID;
+                categoryTextBox.Text = Category;
+            }
         }
 
         private void LoadComboBoxData()
@@ -37,7 +37,6 @@ namespace kursovaya
             {
                 connection.Open();
 
-                // Загрузка данных для соревнований
                 SqlDataAdapter competitionAdapter = new SqlDataAdapter("SELECT id, CompetitionName FROM Competitions", connection);
                 DataTable competitionTable = new DataTable();
                 competitionAdapter.Fill(competitionTable);
@@ -45,7 +44,6 @@ namespace kursovaya
                 competitionComboBox.DisplayMember = "CompetitionName";
                 competitionComboBox.ValueMember = "id";
 
-                // Загрузка данных для атлетов
                 SqlDataAdapter athleteAdapter = new SqlDataAdapter("SELECT id, AthleteFIO FROM Athletes", connection);
                 DataTable athleteTable = new DataTable();
                 athleteAdapter.Fill(athleteTable);

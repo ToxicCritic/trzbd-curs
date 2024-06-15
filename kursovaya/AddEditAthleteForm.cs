@@ -23,28 +23,28 @@ namespace kursovaya
             LoadComboBoxData();
         }
 
-        public AddEditAthleteForm(DataRow athleteRow)
+        public AddEditAthleteForm(DataRow athleteRow) : this()
         {
-            InitializeComponent();
-            LoadComboBoxData();
+            if (athleteRow != null)
+            {
+                FIO = athleteRow["AthleteFIO"].ToString();
+                Department = athleteRow["Department"].ToString();
+                GroupID = (int)athleteRow["GroupID"];
+                TrainerID = (int)athleteRow["TrainerID"];
+                Ranking = athleteRow["Ranking"].ToString();
+                Heights = (int)athleteRow["Heights"];
+                Weights = (int)athleteRow["Weights"];
+                EducationBegin = (DateTime)athleteRow["Education_begin"];
 
-            FIO = athleteRow["AthleteFIO"].ToString();
-            Department = athleteRow["Department"].ToString();
-            GroupID = (int)athleteRow["GroupID"];
-            TrainerID = (int)athleteRow["TrainerID"];
-            Ranking = athleteRow["Ranking"].ToString();
-            Heights = athleteRow["Heights"] != DBNull.Value ? (int)athleteRow["Heights"] : 0;
-            Weights = athleteRow["Weights"] != DBNull.Value ? (int)athleteRow["Weights"] : 0;
-            EducationBegin = (DateTime)athleteRow["Education_begin"];
-
-            fioTextBox.Text = FIO;
-            departmentComboBox.SelectedValue = Department;
-            groupComboBox.SelectedValue = GroupID;
-            trainerComboBox.SelectedValue = TrainerID;
-            rankingTextBox.Text = Ranking;
-            heightsNumericUpDown.Value = Heights;
-            weightsNumericUpDown.Value = Weights;
-            educationBeginPicker.Value = EducationBegin;
+                fioTextBox.Text = FIO;
+                departmentComboBox.SelectedValue = Department;
+                groupComboBox.SelectedValue = GroupID;
+                trainerComboBox.SelectedValue = TrainerID;
+                rankingTextBox.Text = Ranking;
+                heightsNumericUpDown.Value = Heights;
+                weightsNumericUpDown.Value = Weights;
+                educationBeginPicker.Value = EducationBegin;
+            }
         }
 
         private void LoadComboBoxData()
@@ -76,7 +76,7 @@ namespace kursovaya
             }
         }
 
-        private void SaveButton_Click(object sender, EventArgs e)
+        private void saveButton_Click(object sender, EventArgs e)
         {
             FIO = fioTextBox.Text;
             Department = departmentComboBox.SelectedValue.ToString();
@@ -94,7 +94,7 @@ namespace kursovaya
             }
         }
 
-        private void CancelButton_Click(object sender, EventArgs e)
+        private void cancelButton_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();

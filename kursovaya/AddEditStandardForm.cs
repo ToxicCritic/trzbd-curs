@@ -15,17 +15,18 @@ namespace kursovaya
             InitializeComponent();
         }
 
-        public AddEditStandardForm(DataRow standardRow)
+        public AddEditStandardForm(DataRow standardRow) : this()
         {
-            InitializeComponent();
+            if (standardRow != null)
+            {
+                Exercise = standardRow["Exercise"].ToString();
+                ResultForWomen = standardRow["Result_for_women"].ToString();
+                ResultForMen = standardRow["Result_for_men"].ToString();
 
-            Exercise = standardRow["Exercise"].ToString();
-            ResultForWomen = standardRow["Result_for_women"].ToString();
-            ResultForMen = standardRow["Result_for_men"].ToString();
-
-            exerciseTextBox.Text = Exercise;
-            resultForWomenTextBox.Text = ResultForWomen;
-            resultForMenTextBox.Text = ResultForMen;
+                exerciseTextBox.Text = Exercise;
+                resultForWomenTextBox.Text = ResultForWomen;
+                resultForMenTextBox.Text = ResultForMen;
+            }
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -51,7 +52,7 @@ namespace kursovaya
         {
             if (string.IsNullOrEmpty(Exercise))
             {
-                MessageBox.Show("Название упражнения является обязательным.");
+                MessageBox.Show("Упражнение является обязательным.");
                 return false;
             }
             if (string.IsNullOrEmpty(ResultForWomen))
@@ -66,8 +67,6 @@ namespace kursovaya
             }
             return true;
         }
-
-        
 
         private Label exerciseLabel;
         private TextBox exerciseTextBox;
